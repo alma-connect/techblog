@@ -289,15 +289,15 @@ footer small { text-transform: uppercase; }
 /*****************************************************************************/
 
 
-ul.posts { color: #236CC1; overflow: hidden; }
-ul.posts li { border-bottom: 1px solid #4492EC; }
+ul.posts { color: #0A8B6F; overflow: hidden; }
+ul.posts li { border-bottom: 1px solid #60c7b6; }
 ul.posts li:last-child { border-bottom: none; }
-ul.posts li .p-wrap { background: #589FF1; padding: 50px 40px; transition: all .15s ease-in; }
-ul.posts li .p-wrap:hover { background: #67AAF7; padding-left: 50px; }
-ul.posts li .p-wrap:active { background: #569BEA; }
+ul.posts li .p-wrap { background: #18BBA8; padding: 50px 40px; transition: all .15s ease-in; }
+ul.posts li .p-wrap:hover { background: #60c7b6; padding-left: 50px; }
+ul.posts li .p-wrap:active { background: #18BBA8; }
 ul.posts li .p-wrap:hover::after { content:'\2192'; margin-left: 10px; }
 ul.posts li .p-wrap p { display: inline; margin-bottom: 0; }
-ul.posts li .date { color: #2671C8; padding-right: 20px; }
+ul.posts li .date { color: #0A8B6F; padding-right: 20px; }
 ul.posts li a { color: #fff; text-decoration: none; }
 
 
