@@ -1,43 +1,56 @@
-<!-- MarkdownTOC depth=0 -->
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+      <title>Alma Connect Tech Blog - Connecting you to your alma mater</title>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <meta http-equiv="content-language" content="en-gb" />
+      <meta name="description" content="Fluid, responsive blog theme for Jekyll.">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+      <link href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,700|Lora:400,700,400italic" rel="stylesheet" type="text/css">
+      <link rel="stylesheet" type="text/css" href="/css/main.css" />
+      <link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+      <link href="atom.xml" type="application/atom+xml" rel="alternate" title="Site ATOM Feed">
+  </head>
 
+  <body>
+    <!--[if lt IE 7]>
+        <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+    <![endif]-->
 
-<ul>
-<li><!-- /MarkdownTOC -->
+    <div id="off-canvas">
+      <div id="avatar">
+        <img src="/assets/img/avatar.jpg" alt="Profile Picture" title="wow, very face, such photograph, wow">
+      </div>
+      <div id="bio">
+          <h1>Hi, I'm Alma Connect.</h1>
+          <p>I'm a developer, living in Paris, France and this is my personal blog. I share things on <a href="">Github</a>, flex my design muscles on <a href="">Dribbble</a>, share stupid thoughts on <a href="">Twitter</a>. Shoot me an <a href="mailto:">email</a> if you'd like to be in touch.</p>
+      </div>
+    </div>
 
-<ul>
-<li>date:   2014-03-18 17:00:00</li>
-</ul>
-</li>
-<li>Why PUB/SUB?</li>
-<li>What is PUB/SUB?</li>
-<li>Implementing basic publisher &amp; subscriber; lets get it on
+    <header>
+      <div class="h-wrap">
+        <h1 class="title"><a href="" title="Back to Homepage">Alma Connect Tech Blog</a></h1>
+        <a class="menu-icon" title="Open Bio"><span class="lines"></span></a>
+      </div>
+    </header>
 
-<ul>
-<li>Publisher</li>
-<li>Subscriber</li>
-</ul>
-</li>
-<li>Problems
-
-<ul>
-<li>Avoid callback chain due to denormalization</li>
-</ul>
-</li>
-<li>Cocluding thoughts</li>
-</ul>
-
-
-<!-- /MarkdownTOC -->
-
-
-<hr />
-
-<p>layout: post
-title:  "PUB/SUB in Rails; using ActiveSupport::Notifications"</p>
-
-<h2>date:   2014-03-18 17:00:00</h2>
-
-<p>This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications</p>
+    <main>
+      <section id="single-wrap">
+  <article class="single-content" itemscope itemtype="http://schema.org/BlogPosting">
+    <div class="feat">
+      <h5 class="page-date">
+        <time datetime="2014-03-18T17:00:00Z" itemprop="datePublished">
+          18 March 2014
+        </time>
+      </h5>
+    </div>
+    <h1 class="page-title" itemprop="name headline">PUB/SUB in Rails; using ActiveSupport::Notifications</h1>
+    <div itemprop="articleBody">
+      <p>This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications</p>
 
 <h1>Why PUB/SUB?</h1>
 
@@ -109,3 +122,37 @@ title:  "PUB/SUB in Rails; using ActiveSupport::Notifications"</p>
 [5][https://gist.github.com/rubish/9598373/a79e883187d2e5f92c990abed4fbb6b980776039#file-publisher-rb]
 [6][https://gist.github.com/rubish/9598373/a79e883187d2e5f92c990abed4fbb6b980776039#file-subscriber-rb]
 [7][http://api.rubyonrails.org/classes/ActiveSupport/Notifications/Event.html]</p>
+
+    </div>
+    <div id="share" class="feat">
+      <a href="http://twitter.com/share" class="popup">
+        <span class="icon-twitter"></span>
+      </a>
+    </div>
+    
+    
+  </article>
+</section>
+
+    </main>
+
+    <footer>
+      <small>Powered by Jekyll - Theme: <a href="https://github.com/m3xm/hikari-for-Jekyll">hikari</a> - &copy; Alma Connect</small>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    
+    
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-49058929-1', 'almaconnect.com');
+        ga('send', 'pageview');
+      </script>
+    
+
+  </body>
+</html>

@@ -1,17 +1,3 @@
-<!-- MarkdownTOC depth=0 -->
-
-- <!-- /MarkdownTOC -->
-	- date:   2014-03-18 17:00:00
-- Why PUB/SUB?
-- What is PUB/SUB?
-- Implementing basic publisher & subscriber; lets get it on
-	- Publisher
-	- Subscriber
-- Problems
-	- Avoid callback chain due to denormalization
-- Cocluding thoughts
-
-<!-- /MarkdownTOC -->
 ---
 layout: post
 title:  "PUB/SUB in Rails; using ActiveSupport::Notifications"

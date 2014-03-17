@@ -4,55 +4,16 @@
   <id>http://alma-connect.github.io/techblog/</id>
   <link href="http://alma-connect.github.io/techblog/" />
   <link href="http://alma-connect.github.io/techblog//atom.xml" rel="self" />
-  <updated>2014-03-17T21:37:12+05:30</updated>
+  <updated>2014-03-17T21:54:04+05:30</updated>
   <rights>Copyright 2014, Alma Connect</rights>
   <author>
     <name>Alma Connect</name>
   </author>
   
     <entry>
-      <title>Rails Pub Sub</title>
-      <link href="http://alma-connect.github.io/techblog//2014/01/rails-pub-sub.html" />
-      <summary type="html">&lt;!-- MarkdownTOC depth=0 --&gt;
-
-
-&lt;ul&gt;
-&lt;li&gt;&lt;!-- /MarkdownTOC --&gt;
-
-&lt;ul&gt;
-&lt;li&gt;date:   2014-03-18 17:00:00&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Why PUB/SUB?&lt;/li&gt;
-&lt;li&gt;What is PUB/SUB?&lt;/li&gt;
-&lt;li&gt;Implementing basic publisher &amp;amp; subscriber; lets get it on
-
-&lt;ul&gt;
-&lt;li&gt;Publisher&lt;/li&gt;
-&lt;li&gt;Subscriber&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Problems
-
-&lt;ul&gt;
-&lt;li&gt;Avoid callback chain due to denormalization&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Cocluding thoughts&lt;/li&gt;
-&lt;/ul&gt;
-
-
-&lt;!-- /MarkdownTOC --&gt;
-
-
-&lt;hr /&gt;
-
-&lt;p&gt;layout: post
-title:  &quot;PUB/SUB in Rails; using ActiveSupport::Notifications&quot;&lt;/p&gt;
-
-&lt;h2&gt;date:   2014-03-18 17:00:00&lt;/h2&gt;
-
-&lt;p&gt;This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications&lt;/p&gt;
+      <title>PUB/SUB in Rails; using ActiveSupport::Notifications</title>
+      <link href="http://alma-connect.github.io/techblog//2014/03/rails-pub-sub.html" />
+      <summary type="html">&lt;p&gt;This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications&lt;/p&gt;
 
 &lt;h1&gt;Why PUB/SUB?&lt;/h1&gt;
 
@@ -125,8 +86,8 @@ title:  &quot;PUB/SUB in Rails; using ActiveSupport::Notifications&quot;&lt;/p&g
 [6][https://gist.github.com/rubish/9598373/a79e883187d2e5f92c990abed4fbb6b980776039#file-subscriber-rb]
 [7][http://api.rubyonrails.org/classes/ActiveSupport/Notifications/Event.html]&lt;/p&gt;
 </summary>
-      <id>http://alma-connect.github.io/techblog//2014/01/rails-pub-sub.html</id>
-      <updated>2014-01-03T00:00:00+05:30</updated>
+      <id>http://alma-connect.github.io/techblog//2014/03/rails-pub-sub.html</id>
+      <updated>2014-03-18T17:00:00Z</updated>
       <author>
         <name>Alma Connect</name>
       </author>
