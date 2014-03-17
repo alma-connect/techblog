@@ -1,10 +1,10 @@
 name: "Alma Connect Tech Blog"
 description: "Connecting you to your alma mater"
 
-author: "Alma Connect"
+author: "Alma Connect Tech Team"
 
-url: "http://alma-connect.github.io/techblog/"
-baseurl: ""
+url: "http://alma-connect.github.io"
+baseurl: "/techblog"
 
 markdown: rdiscount
 permalink: :year/:month/:title.html

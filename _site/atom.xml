@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Alma Connect Tech Blog</title>
-  <id>http://alma-connect.github.io/techblog/</id>
-  <link href="http://alma-connect.github.io/techblog/" />
-  <link href="http://alma-connect.github.io/techblog//atom.xml" rel="self" />
-  <updated>2014-03-18T03:30:59+05:30</updated>
-  <rights>Copyright 2014, Alma Connect</rights>
+  <id>http://alma-connect.github.io</id>
+  <link href="http://alma-connect.github.io" />
+  <link href="http://alma-connect.github.io/atom.xml" rel="self" />
+  <updated>2014-03-18T03:39:33+05:30</updated>
+  <rights>Copyright 2014, Alma Connect Tech Team</rights>
   <author>
-    <name>Alma Connect</name>
+    <name>Alma Connect Tech Team</name>
   </author>
   
     <entry>
       <title>PUB/SUB in Rails; using ActiveSupport::Notifications</title>
-      <link href="http://alma-connect.github.io/techblog//2014/03/rails-pub-sub.html" />
+      <link href="http://alma-connect.github.io/2014/03/rails-pub-sub.html" />
       <summary type="html">&lt;p&gt;This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications&lt;/p&gt;
 
 &lt;p&gt;TL;DR; You can write de-coupoled, compasable and modular application using simple pattern like PUB/SUB using ActiveSupport::Notifications.&lt;/p&gt;
@@ -590,10 +590,10 @@
 
 &lt;p&gt;I am no expert here and might be missing some important issues. I welcome constructive criticism. Also if someone finds this interesting and wants to wrap this in a gem, please get in touch with me at &lt;code&gt;rubish[dot]gupta[at]gmail[dot]com&lt;/code&gt;.&lt;/p&gt;
 </summary>
-      <id>http://alma-connect.github.io/techblog//2014/03/rails-pub-sub.html</id>
+      <id>http://alma-connect.github.io/2014/03/rails-pub-sub.html</id>
       <updated>2014-03-18T17:00:00Z</updated>
       <author>
-        <name>Alma Connect</name>
+        <name>Alma Connect Tech Team</name>
       </author>
     </entry>
   
