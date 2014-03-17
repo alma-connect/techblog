@@ -4,6 +4,7 @@ description: "Connecting you to your alma mater"
 author: "Alma Connect Tech Team"
 
 url: "http://alma-connect.github.io"
+#baseurl: ""
 baseurl: "/techblog"
 
 markdown: rdiscount
