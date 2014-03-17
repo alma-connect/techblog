@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "PUB/SUB in Rails; using ActiveSupport::Notifications"
-date:   2014-03-18 17:00:00
+date:   2014-03-18 06:00:00
 ---
 
 This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications

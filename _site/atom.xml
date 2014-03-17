@@ -4,7 +4,7 @@
   <id>http://alma-connect.github.io</id>
   <link href="http://alma-connect.github.io" />
   <link href="http://alma-connect.github.io/atom.xml" rel="self" />
-  <updated>2014-03-18T04:08:13+05:30</updated>
+  <updated>2014-03-18T04:11:56+05:30</updated>
   <rights>Copyright 2014, Alma Connect Tech Team</rights>
   <author>
     <name>Alma Connect Tech Team</name>
@@ -591,7 +591,7 @@
 &lt;p&gt;I am no expert here and might be missing some important issues. I welcome constructive criticism. Also if someone finds this interesting and wants to wrap this in a gem, please get in touch with me at &lt;code&gt;rubish[dot]gupta[at]gmail[dot]com&lt;/code&gt;.&lt;/p&gt;
 </summary>
       <id>http://alma-connect.github.io/2014/03/rails-pub-sub.html</id>
-      <updated>2014-03-18T17:00:00Z</updated>
+      <updated>2014-03-18T06:00:00Z</updated>
       <author>
         <name>Alma Connect Tech Team</name>
       </author>
