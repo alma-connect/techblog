@@ -181,7 +181,7 @@ header .h-wrap .close .lines::after {
   max-height: 0;
   overflow: hidden;
   padding: 0px 40px;
-  background: #fafafa;
+  background: #5D7094;
   border-bottom: 0px solid #f1f1f1;
   -webkit-transition: max-height .35s ease, 
                       padding-top .35s ease, 
@@ -216,6 +216,7 @@ header .h-wrap .close .lines::after {
 #off-canvas #bio h1 {
   font-size: 140%;
   margin-top: 0;
+  color: #00bfa9;
 }
 
 #off-canvas #bio p {
@@ -223,6 +224,7 @@ header .h-wrap .close .lines::after {
   line-height: 160%;
   font-size: 100%;
   margin-bottom: 0;
+  color: #fff;
 }
 
 #off-canvas #avatar {
@@ -233,8 +235,7 @@ header .h-wrap .close .lines::after {
 }
 
 #off-canvas #avatar img {
-  width: 150px;
-  border-radius: 50%;
+  width: 282px;
 }
 
 
