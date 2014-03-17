@@ -486,6 +486,11 @@ code {
   background: #fff;
 }
 
+.highlight code .lineno {
+  background: #f3fff8;
+  color: #5D7094;
+}
+
 .highlight code span {
   line-height: 150%;
   font-size: 85%;

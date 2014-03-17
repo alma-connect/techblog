@@ -41,7 +41,7 @@ Such a system is already bundled with rails: its [ActiveSupport::Notifications](
 
 ## Publisher
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/publisher.rb
 module Publisher
   extend self
@@ -58,7 +58,7 @@ module Publisher
 end
 {% endhighlight %}
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # publisher example usage
 if user.save 
   Publisher.broadcast_event('user.created', user: user)
@@ -79,7 +79,7 @@ This is as simple as it gets. Publisher can broadcast an event accepting an even
 
 ## Subscriber
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/subscriber.rb
 module Subscriber
   def self.subscribe(event_name)
@@ -93,7 +93,7 @@ module Subscriber
 end
 {% endhighlight %}
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # subscriber example usage
 Subscriber.subscribe('user.created') do |event|
   error = "Error: #{event.payload[:exception].first}" if event.payload[:exception]
@@ -118,7 +118,7 @@ These are some problems we face in our routine work, which can be solved by `pub
 
 **Solution:** Technically our publisher and subscribers can still be used to handle such scenarios, but lets add some object oriented love and some ruby goodness to our implementation.
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/publisher.rb
 module Publisher
   extend ::ActiveSupport::Concern
@@ -160,7 +160,7 @@ end
 
 The publisher undergoes some changes, to be included in class and have a class level namespace. Lets say we are talking about welcome mails here: lets just create a publisher for registrations and start publishing
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/publishers/registration.rb
 module Publishers
   class Registration
@@ -176,7 +176,7 @@ Publishers::Registration.broadcast_event('user_signed_up', user: user)
 
 Why not make our subscribers more class friendly to? Our old subscriber remains unchanged, but we have a new base subscriber class:
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/subscribers/base.rb
 module Subscribers
   class Base
@@ -206,7 +206,7 @@ end
 
 What we did here was create a base class to be extended. A subscriber can attach itself to a namespace and define methods to handle individual events. Method names should match with event name in the namespace.
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/subscribers/registration_mailer.rb
 module Subscribers
   class RegistrationMailer < ::Subscribers::Base
@@ -230,7 +230,7 @@ Nothing is really happening until the call to `attach_to`, someone is broadcasti
 
 **Problem:** We use mongodb with mongoid heavily and denormalize data to cut down on queries. We have built an internal system to handle denormalization with decent fallbacks and keeping the sync in realtime. It has been working out very nicely, but it results in very coupled code. We define denormalization macros in the models. This makes all our models aware of what data they are denormalizing from where and also what data they need to denormalize to where. The code looks something like:
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/models/user.rb
 class User
   include AlmaConnect::Denormalization
@@ -255,7 +255,7 @@ end
 
 This looks very good, but what if we need to denormalize user name to comment as well.
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/models/comment.rb
 class Comment
   include AlmaConnect::Denormalization
@@ -288,7 +288,7 @@ You see the problem, right?
 
 **Solution:** Instead of sprinkling denormalization macros all around, we can leave the from macros as they are. From macros are good, because of all the fallback logic, they also work on pull content from a model rather push changes to many. We can replace to macros, with publishing change events. We would simply publish a message whenever a user name changes. We can capture it in a `before_save` callback and publish in a `after_save`. By publishing in `after_save` we ensure that user is persisted at time of publishing. We can change the publisher to hook directly into model callback chain.
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/publishers/base.rb
 module Publishers
   module Base
@@ -399,7 +399,7 @@ end
 
 We created a module `Publishers::Base` which will be included in an `ActiveModel`. Model can now `attach_publisher(namespace, publisher_klass)` and immediately start broadcasting events `created` and `destroyed` in that namespace. The publisher in the call needs to define a method `prepare_notifications(namespace, model)`. This method will be called when ever `before_save` is triggered on the model instance. Publisher can access the `pub_sub_notifications` item which is a registry of all the publishers attached to the model and add any notifications which would be broad casted as events in the `after_save`. Each `attach_publisher` call creates a new object of notifications_queue, which creates a new instance of publisher on every callback cycle and maintains an array of notifications to be published for this publisher. We initially implemented it so that publishers were registered in an initializer like subscribers below. It created many issues with development file reloads and constant restarts of server and console. Publishers are the part where all the actions happens. Maintaining list of publishers, their namespace, notifications to be published are managed here. Subscribers are simple listeners which work on per event basis. We need our notification system to be as thread safe as usage of model instances themselves, hence the complexity.
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/publishers/user.rb
 module Publishers
   module User
@@ -461,7 +461,7 @@ This is a lot more code, but this system seems robust:
 
 **Solution:** Luckily for us we already had a steady `pub_sub` implementation by the time we needed to do this. We created a very modular and layered architecture. and wired it together using the `pub_sub`. We could already listen to `user.created` event from our user publisher. We can create milestone and batchmate signed up event from this event and handle them appropriately.
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/services/registration/user_notifications_service.rb
 class Registration::UserNotificationsService
   def self.deliver_welcome_email(user)
@@ -525,7 +525,7 @@ end
 
 Till now we have created everything we need to send out welcome email and milestone notification. We can see that the jobs expose three methods and they correspond to three methods in our notification service. Notification service is the place where all the real action is going on. Actual mail delivery and applying the business logic to identify the batchmates and triggering the delivery all lives in there. These all are activities which can be delayed, so we have created two jobs, each handling delaying of welcome emails and milesonte notification. We can now write the subscribers and and wire everything up.
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 # app/pub_sub/subscribers/registration/user.rb
 class Subscribers::Registration::User < Subscribers::Base
   def created(event)
