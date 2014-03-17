@@ -1,0 +1,15 @@
+name: "Alma Connect Tech Blog"
+description: "Connecting you to your alma mater"
+
+author: "Alma Connect"
+
+url: "http://alma-connect.github.io/techblog/"
+baseurl: ""
+
+markdown: rdiscount
+permalink: :year/:month/:title.html
+pygments: true
+
+# Google Analytics
+ga_domain: almaconnect.com
+ga_tracking_id: UA-49058929-1
