@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Alma Connect Tech Blog</title>
+  <title>Alma Connect</title>
   <id>http://alma-connect.github.io</id>
   <link href="http://alma-connect.github.io" />
   <link href="http://alma-connect.github.io/atom.xml" rel="self" />
-  <updated>2014-03-18T04:30:00+05:30</updated>
-  <rights>Copyright 2014, Alma Connect Tech Team</rights>
+  <updated>2014-03-18T05:10:22+05:30</updated>
+  <rights>Copyright 2014, AlmaConnect</rights>
   <author>
-    <name>Alma Connect Tech Team</name>
+    <name>AlmaConnect</name>
   </author>
   
     <entry>
@@ -593,7 +593,7 @@
       <id>http://alma-connect.github.io/2014/03/rails-pub-sub.html</id>
       <updated>2014-03-18T06:00:00Z</updated>
       <author>
-        <name>Alma Connect Tech Team</name>
+        <name>AlmaConnect</name>
       </author>
     </entry>
   
