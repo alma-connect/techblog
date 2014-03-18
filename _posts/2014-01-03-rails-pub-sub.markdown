@@ -2,13 +2,12 @@
 layout: post
 title:  "PUB/SUB in Rails; using ActiveSupport::Notifications"
 date:   2014-03-18 06:00:00
+categories: [rails, pub/sub, design pattern, decoupling]
 ---
 
 This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications
 
 TL;DR; You can write de-coupoled, compasable and modular application using simple pattern like PUB/SUB using ActiveSupport::Notifications.
-
-<!-- MarkdownTOC depth=2 -->
 
 - Why PUB/SUB?
 - What is PUB/SUB?
@@ -21,8 +20,6 @@ TL;DR; You can write de-coupoled, compasable and modular application using simpl
 	- Handling of events like user milestone reached, batchmate signed up
 - Cocluding thoughts
 - Request for gemification
-
-<!-- /MarkdownTOC -->
 
 
 # Why PUB/SUB?

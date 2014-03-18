@@ -312,6 +312,10 @@ ul.posts li a { color: #fff; text-decoration: none; }
   color: #5D7094;
 }
 
+.facebook-comments {
+  text-align: center;
+}
+
 section#single-wrap {
   width: 100%;
   width: 100%;
