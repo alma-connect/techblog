@@ -16,15 +16,25 @@ layout: default
       {{ content }}
     </div>
 
-    <div class="facebook-comments">
-      <div class="fb-comments" data-href="{{page.url}}" data-numposts="5" data-colorscheme="light"></div>
+    <div id="share" class="feat">
+      <!-- AddThis Button BEGIN -->
+      <div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+      <a class="addthis_button_preferred_1"></a>
+      <a class="addthis_button_preferred_2"></a>
+      <a class="addthis_button_preferred_3"></a>
+      <a class="addthis_button_preferred_4"></a>
+      <a class="addthis_button_compact"></a>
+      <a class="addthis_counter addthis_bubble_style"></a>
+      </div>
+      <script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+      <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-532791d823f554dc"></script>
+      <!-- AddThis Button END -->
     </div>
 
-    <div id="share" class="feat">
-      <a href="http://twitter.com/share" class="popup">
-        <span class="icon-twitter"></span>
-      </a>
+    <div class="facebook-comments">
+      <div class="fb-comments" data-href="{{site.url}}{{site.baseUrl}}{{page.url}}" data-numposts="5" data-colorscheme="light"></div>
     </div>
+
     {% if page.next %}
       <a rel="next" href="{{ site.baseurl }}{{ page.next.url }}" id="next">
         <span class="nav-title nav-title-next">newer</span> &rarr;

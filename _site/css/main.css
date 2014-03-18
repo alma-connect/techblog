@@ -316,6 +316,14 @@ ul.posts li a { color: #fff; text-decoration: none; }
   text-align: center;
 }
 
+.addthis_toolbox {
+  display: inline-block;
+  position: relative;
+  top: 21px;
+  margin: auto;
+  width: 300px;
+}
+
 section#single-wrap {
   width: 100%;
   width: 100%;
