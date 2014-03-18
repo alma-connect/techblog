@@ -62,7 +62,7 @@
     </div>
     <h1 class="page-title" itemprop="name headline">Implementing PUB/SUB in Rails; using ActiveSupport::Notifications</h1>
     <div itemprop="articleBody">
-      <p>This artcile is about implmenting a simple publisher/subscriber model in rails using <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html">ActiveSupport::Notifications</a>(ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.</p>
+      <p>This artcile is about implmenting a simple publisher/subscriber model in rails using <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html">ActiveSupport::Notifications</a> (ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.</p>
 
 <ul>
 <li><a href="#about-pub-sub">A little about PUB/SUB?</a></li>
@@ -295,7 +295,7 @@
 
 <p>There is a gotcha though, building modular, losely coupeled system with message publishing has its own cons. Biggest being, the system is too loosely coupeled. If something stops working nothing goes wrong and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. <strong>Base Line:</strong> for me pros out weigh the cons</p>
 
-<p><strong>Conclusion:</strong> With little modifications, our PUBSUB now supports namespaces(read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful <code>ActiveSupport::Notification</code> already feels good enough.</p>
+<p><strong>Conclusion:</strong> With little modifications, our PUBSUB now supports namespaces (read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful <code>ActiveSupport::Notification</code> already feels good enough.</p>
 
 <h2><a name="problem-callbacks-in-denormalized-models">Messy callback chain introduced due to denormalization</a></h2>
 

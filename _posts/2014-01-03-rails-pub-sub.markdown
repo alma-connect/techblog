@@ -5,7 +5,7 @@ date:   2014-03-18 06:00:00
 categories: [rails, pub/sub, design pattern, decoupling]
 ---
 
-This artcile is about implmenting a simple publisher/subscriber model in rails using [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html)(ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.
+This artcile is about implmenting a simple publisher/subscriber model in rails using [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) (ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.
 
 - [A little about PUB/SUB?](#about-pub-sub)
 - [Implementing basic publisher & subscriber; lets get it on](#basic-implementation)
@@ -219,7 +219,7 @@ We have been broadcasting that event about user sign up, but nothing was really 
 
 There is a gotcha though, building modular, losely coupeled system with message publishing has its own cons. Biggest being, the system is too loosely coupeled. If something stops working nothing goes wrong and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. **Base Line:** for me pros out weigh the cons
 
-**Conclusion:** With little modifications, our PUBSUB now supports namespaces(read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful `ActiveSupport::Notification` already feels good enough.
+**Conclusion:** With little modifications, our PUBSUB now supports namespaces (read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful `ActiveSupport::Notification` already feels good enough.
 
 
 ## <a name="problem-callbacks-in-denormalized-models">Messy callback chain introduced due to denormalization</a>

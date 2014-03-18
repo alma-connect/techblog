@@ -4,7 +4,7 @@
   <id>http://alma-connect.github.io</id>
   <link href="http://alma-connect.github.io" />
   <link href="http://alma-connect.github.io/atom.xml" rel="self" />
-  <updated>2014-03-18T20:31:10+05:30</updated>
+  <updated>2014-03-18T20:45:39+05:30</updated>
   <rights>Copyright 2014, AlmaConnect</rights>
   <author>
     <name>AlmaConnect</name>
@@ -13,7 +13,7 @@
     <entry>
       <title>Implementing PUB/SUB in Rails; using ActiveSupport::Notifications</title>
       <link href="http://alma-connect.github.io/2014/03/rails-pub-sub.html" />
-      <summary type="html">&lt;p&gt;This artcile is about implmenting a simple publisher/subscriber model in rails using &lt;a href=&quot;http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html&quot;&gt;ActiveSupport::Notifications&lt;/a&gt;(ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.&lt;/p&gt;
+      <summary type="html">&lt;p&gt;This artcile is about implmenting a simple publisher/subscriber model in rails using &lt;a href=&quot;http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html&quot;&gt;ActiveSupport::Notifications&lt;/a&gt; (ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;#about-pub-sub&quot;&gt;A little about PUB/SUB?&lt;/a&gt;&lt;/li&gt;
@@ -246,7 +246,7 @@
 
 &lt;p&gt;There is a gotcha though, building modular, losely coupeled system with message publishing has its own cons. Biggest being, the system is too loosely coupeled. If something stops working nothing goes wrong and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. &lt;strong&gt;Base Line:&lt;/strong&gt; for me pros out weigh the cons&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Conclusion:&lt;/strong&gt; With little modifications, our PUBSUB now supports namespaces(read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful &lt;code&gt;ActiveSupport::Notification&lt;/code&gt; already feels good enough.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Conclusion:&lt;/strong&gt; With little modifications, our PUBSUB now supports namespaces (read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful &lt;code&gt;ActiveSupport::Notification&lt;/code&gt; already feels good enough.&lt;/p&gt;
 
 &lt;h2&gt;&lt;a name=&quot;problem-callbacks-in-denormalized-models&quot;&gt;Messy callback chain introduced due to denormalization&lt;/a&gt;&lt;/h2&gt;
 
