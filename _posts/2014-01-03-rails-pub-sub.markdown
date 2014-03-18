@@ -552,4 +552,4 @@ Subscribers::RegistrationMailer.attach_to('registration')
 
 A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupeled modules can be composed together in variety of ways to create a flexible, robust and scalable application. The modules can be replaced and upgraded without affecting the system as whole.
 
-If you liked today's article, keep looking for the next one. If you like the implmentation and would love to help in gemifying it, please get in touch at `rubish[dot]gupta[at]gmail[dot]com` or `tech[dot]team[at]gmail[dot]com`
+If you liked today's article, keep looking for the next one. If you like the implmentation and would love to help in gemifying it, please get in touch at `rubish[dot]gupta[at]almaconnect[dot]com` or `tech[dot]team[at]almaconnect[dot]com`

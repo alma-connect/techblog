@@ -4,7 +4,7 @@
   <id>http://alma-connect.github.io</id>
   <link href="http://alma-connect.github.io" />
   <link href="http://alma-connect.github.io/atom.xml" rel="self" />
-  <updated>2014-03-18T20:45:39+05:30</updated>
+  <updated>2014-03-18T20:50:56+05:30</updated>
   <rights>Copyright 2014, AlmaConnect</rights>
   <author>
     <name>AlmaConnect</name>
@@ -579,7 +579,7 @@
 
 &lt;p&gt;A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupeled modules can be composed together in variety of ways to create a flexible, robust and scalable application. The modules can be replaced and upgraded without affecting the system as whole.&lt;/p&gt;
 
-&lt;p&gt;If you liked today's article, keep looking for the next one. If you like the implmentation and would love to help in gemifying it, please get in touch at &lt;code&gt;rubish[dot]gupta[at]gmail[dot]com&lt;/code&gt; or &lt;code&gt;tech[dot]team[at]gmail[dot]com&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;If you liked today's article, keep looking for the next one. If you like the implmentation and would love to help in gemifying it, please get in touch at &lt;code&gt;rubish[dot]gupta[at]almaconnect[dot]com&lt;/code&gt; or &lt;code&gt;tech[dot]team[at]almaconnect[dot]com&lt;/code&gt;&lt;/p&gt;
 </summary>
       <id>http://alma-connect.github.io/2014/03/rails-pub-sub.html</id>
       <updated>2014-03-18T06:00:00Z</updated>
