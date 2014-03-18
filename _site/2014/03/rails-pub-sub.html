@@ -62,52 +62,50 @@
     </div>
     <h1 class="page-title" itemprop="name headline">Implementing PUB/SUB in Rails; using ActiveSupport::Notifications</h1>
     <div itemprop="articleBody">
-      <p>This article is about implementing simple PUB/SUB in Rails, using ActiveSupport::Notifications</p>
-
-<p>TL;DR; You can write de-coupoled, compasable and modular application using simple pattern like PUB/SUB using ActiveSupport::Notifications.</p>
+      <p>This artcile is about implmenting a simple publisher/subscriber model in rails using <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html">ActiveSupport::Notifications</a>(ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.</p>
 
 <ul>
-<li>Why PUB/SUB?</li>
-<li>What is PUB/SUB?</li>
-<li>Implementing basic publisher &amp; subscriber; lets get it on
+<li><a href="#about-pub-sub">A little about PUB/SUB?</a></li>
+<li><a href="#basic-implementation">Implementing basic publisher &amp; subscriber; lets get it on</a>
 
 <ul>
-<li>Publisher</li>
-<li>Subscriber</li>
+<li><a href="#basic-publisher">Publisher</a></li>
+<li><a href="#basic-subscriber">Subscriber</a></li>
 </ul>
 </li>
-<li>Use cases where PUB/SUB can be helpful
+<li><a href="#use-cases">Use cases where PUB/SUB can be helpful</a>
 
 <ul>
-<li>Mail deliveries coupled with code</li>
-<li>Messy callback chain introduced due to denormalization</li>
-<li>Handling of events like user milestone reached, batchmate signed up</li>
+<li><a href="#problem-mail-delivery-coupling">Mail deliveries coupled with code</a></li>
+<li><a href="#problem-callbacks-in-denormalized-models">Messy callback chain introduced due to denormalization</a></li>
+<li><a href="#problem-handling-special-events">Handling of events like user milestone reached, batchmate signed up</a></li>
 </ul>
 </li>
-<li>Cocluding thoughts</li>
-<li>Request for gemification</li>
+<li><a href="#concluding-thoughts">Cocluding thoughts</a></li>
 </ul>
 
 
-<h1>Why PUB/SUB?</h1>
+<h1><a name="about-pub-sub">A little about PUB/SUB?</a></h1>
 
-<p>Here at <a href="http://www.almaconnect.com/">Alma Connect</a> we are heavy users of Ruby on Rails. RoR is a fast paced web development framework preferring convention over configuration. Rails features and initial project structure encourage fat model skinny controller approach. As the project evolves maintaining it becomes a real pain. Developers start using new patterns and libraries to cope up with these problems (<a href="https://github.com/collectiveidea/interactor">interactors</a>, <a href="https://github.com/apotonick/reform">form objects</a>, <a href="https://github.com/drapergem/draper">decorators</a>). Different projects have different requirements and a lot of times people end up creating there own versions of solutions to problems faced by many. Today we will talk about use of pub/sub pattern to create a more de-coupeled system.</p>
+<p>According to <a href="http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">wikipedia</a> is:</p>
 
-<h1>What is PUB/SUB?</h1>
+<blockquote><p>In software architecture, publish–subscribe is a messaging pattern where senders of messages, called publishers, do not program the messages to be sent directly to specific receivers, called subscribers. Instead, published messages are characterized into classes, without knowledge of what, if any, subscribers there may be. Similarly, subscribers express interest in one or more classes, and only receive messages that are of interest, without knowledge of what, if any, publishers there are.</p></blockquote>
 
-<p>Pub/Sub (Publisher/Subscriber) is a very basic pattern with a lot variants available out there. Lets just get on the same page here and define the pub/sub we are talking about. Most of rails developers out there will be familiar with javascript and jquery. The pub/sub architecture we are talking about is very much similar to jQuery events. To capture the gist of the system:</p>
+<p>Rails is a good framework for proof-of-concept and small applications, it promotes conventions over configuration. As the application grows it becomes difficult to maintain. This is primarily because rails promotes coupeled architecture with fat model, skinny controller approach. Developers need to adopt to new patterns and create new conventions to keep projects moving on pace and in shape. PUBSUB can help us resolve some of the problems we face often.</p>
+
+<h1><a name="basic-implementation">Implementing basic publisher &amp; subscriber; lets get it on</a></h1>
+
+<p>Baisc requirements of our PUBSUB are:</p>
 
 <ol>
 <li> Publishers should be able to publish named events with payload</li>
-<li> Subscribers should be able to subscribe to events matching a name and should receive the payload object as well</li>
+<li> Subscribers should be able to subscribe to events matching a name and should receive the payload object with every event</li>
 </ol>
 
 
-<h1>Implementing basic publisher &amp; subscriber; lets get it on</h1>
+<p>Such a system is already bundled with rails: its <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html">ActiveSupport::Notifications</a>(ASN). ASN is used through out rails internally for instrumentation. The basic implementation of ASN is such a simple yet powerful API that we can start our PUBSUB implementation on top of it.</p>
 
-<p>Such a system is already bundled with rails: its <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html">ActiveSupport::Notifications</a>(ASN). ASN is used through out rails internally for instrumentation. The basic implementation of ASN is such a simple yet powerful API that we can build our pub/sub implementation on top of it.</p>
-
-<h2>Publisher</h2>
+<h2><a name="basic-publisher">Publisher</a></h2>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/publisher.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Publisher</span>
@@ -144,9 +142,9 @@
 </code></pre></div>
 
 
-<p>This is as simple as it gets. Publisher can broadcast an event accepting an event name and a payload hash. It can accept an optional block and will report the time taken to execute the block and also any error during execution of block(this is all provided by ASN used as base, interesting isn't it?).</p>
+<p>This is as simple as it gets. Publisher can broadcast an event accepting an event name and a payload hash. It can accept an optional block and will report the time taken to execute the block and also any error during execution of block (this is all provided by ASN used as base, interesting!!).</p>
 
-<h2>Subscriber</h2>
+<h2><a name="basic-subscriber">Subscriber</a></h2>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/subscriber.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Subscriber</span>
@@ -174,22 +172,22 @@
 
 <p>This is also pretty straight forward, to subscribe to an event just register with a name and the <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications/Event.html">ActiveSupport::Notifications::Event</a> object gets passed to the attached block as the parameter.</p>
 
-<h1>Use cases where PUB/SUB can be helpful</h1>
+<h1><a name="use-cases">Use cases where PUB/SUB can be helpful</a></h1>
 
-<p>These are some problems we face in our routine work, which can be solved by <code>pub_sub</code>:</p>
+<p>These are some problems we face in our routine work, which can be solved by PUBSUB:</p>
 
-<ol>
-<li> Mail deliveries coupled with code</li>
-<li> Messy callback chain introduced due to denormalization</li>
-<li> Handling of events like user milestone reached, batchmate signed up</li>
-</ol>
+<ul>
+<li><a href="#problem-mail-delivery-coupling">Mail deliveries coupled with code</a></li>
+<li><a href="#problem-callbacks-in-denormalized-models">Messy callback chain introduced due to denormalization</a></li>
+<li><a href="#problem-handling-special-events">Handling of events like user milestone reached, batchmate signed up</a></li>
+</ul>
 
 
-<h2>Mail deliveries coupled with code</h2>
+<h2><a name="problem-mail-delivery-coupling">Mail deliveries coupled with code</a></h2>
 
-<p><strong>Problem:</strong> There are always mail deliveries at work in any user facing project. Initially the place to send seems to be model callbacks. As the project evolves, you realize that a service object handling the whole process of user signup might be a better place for it. Lets explore usage of <code>pub_sub</code> in such scenario.</p>
+<p><strong>Problem:</strong> There are always some kind of notifications at work in any user centeric application. Generally it starts with <code>after_save</code> model callback and slowly moves out of there to a services layer. Lets explore, how can we handle welcome emails to newly registered user using PUBSUB.</p>
 
-<p><strong>Solution:</strong> Technically our publisher and subscribers can still be used to handle such scenarios, but lets add some object oriented love and some ruby goodness to our implementation.</p>
+<p><strong>Solution:</strong> Since we are adding this pattern to our application, lets bake in the modularity in core usage.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/publisher.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Publisher</span>
@@ -197,11 +195,11 @@
 <span class="lineno"> 4</span>   <span class="kp">extend</span> <span class="nb">self</span>
 <span class="lineno"> 5</span> 
 <span class="lineno"> 6</span>   <span class="n">included</span> <span class="k">do</span>
-<span class="lineno"> 7</span>     <span class="n">class_attribute</span> <span class="ss">:pub_sub_namespace</span>
-<span class="lineno"> 8</span> 
-<span class="lineno"> 9</span>     <span class="nb">self</span><span class="o">.</span><span class="n">pub_sub_namespace</span> <span class="o">=</span> <span class="kp">nil</span>
-<span class="lineno">10</span>   <span class="k">end</span>
-<span class="lineno">11</span> 
+<span class="lineno"> 7</span>     <span class="c1"># add support for namespace, one class - one namespace</span>
+<span class="lineno"> 8</span>     <span class="n">class_attribute</span> <span class="ss">:pub_sub_namespace</span>
+<span class="lineno"> 9</span> 
+<span class="lineno">10</span>     <span class="nb">self</span><span class="o">.</span><span class="n">pub_sub_namespace</span> <span class="o">=</span> <span class="kp">nil</span>
+<span class="lineno">11</span>   <span class="k">end</span>
 <span class="lineno">12</span> 
 <span class="lineno">13</span>   <span class="k">def</span> <span class="nf">broadcast_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{})</span>
 <span class="lineno">14</span>     <span class="k">if</span> <span class="nb">block_given?</span>
@@ -231,7 +229,7 @@
 </code></pre></div>
 
 
-<p>The publisher undergoes some changes, to be included in class and have a class level namespace. Lets say we are talking about welcome mails here: lets just create a publisher for registrations and start publishing</p>
+<p>The publisher under went some changes. It can be included in a class and after setting a namespace, you are all set to publish events in that namespace. We are not sure yet who might be interested, but lets just start broascasting event <code>user_signed_up</code> in <code>registration</code> namespace.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/publishers/registration.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Publishers</span>
@@ -246,7 +244,7 @@
 </code></pre></div>
 
 
-<p>Why not make our subscribers more class friendly to? Our old subscriber remains unchanged, but we have a new base subscriber class:</p>
+<p>That was easy, publishers look good. Lets add some object oriented love and some ruby magic to subscribers too.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/subscribers/base.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Subscribers</span>
@@ -276,7 +274,7 @@
 </code></pre></div>
 
 
-<p>What we did here was create a base class to be extended. A subscriber can attach itself to a namespace and define methods to handle individual events. Method names should match with event name in the namespace.</p>
+<p>We creeate a base class which subscribers can extend. Subscriber can then attach its method to events in a namespace. This seems to be the building block of highly modular application.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/subscribers/registration_mailer.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Subscribers</span>
@@ -293,13 +291,15 @@
 </code></pre></div>
 
 
-<p>Nothing is really happening until the call to <code>attach_to</code>, someone is broadcasting event that a user has signed up, but nobody is interested in the event, so it goes unnoticed. If a subscriber subscribes to the event, interesting things can be done, like sending out that welcome email :)</p>
+<p>We have been broadcasting that event about user sign up, but nothing was really happening as a result. We created a subscriber to do something useful when the event is captured; send out that welcome email we have been talking about.</p>
 
-<p><strong>Conclusion:</strong> With little modifications we have built our system to handle different modules and features. Adding a layer on top of already useful <code>ActiveSupport::Notification</code> already feels good enough.</p>
+<p>There is a gotcha though, building modular, losely coupeled system with message publishing has its own cons. Biggest being, the system is too loosely coupeled. If something stops working nothing goes wrong and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. <strong>Base Line:</strong> for me pros out weigh the cons</p>
 
-<h2>Messy callback chain introduced due to denormalization</h2>
+<p><strong>Conclusion:</strong> With little modifications, our PUBSUB now supports namespaces(read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful <code>ActiveSupport::Notification</code> already feels good enough.</p>
 
-<p><strong>Problem:</strong> We use mongodb with mongoid heavily and denormalize data to cut down on queries. We have built an internal system to handle denormalization with decent fallbacks and keeping the sync in realtime. It has been working out very nicely, but it results in very coupled code. We define denormalization macros in the models. This makes all our models aware of what data they are denormalizing from where and also what data they need to denormalize to where. The code looks something like:</p>
+<h2><a name="problem-callbacks-in-denormalized-models">Messy callback chain introduced due to denormalization</a></h2>
+
+<p><strong>Problem:</strong> We use mongodb via mongoid and denormalize data to cut down on queries. Intially it was some callbacks and method ooverrides, which grew out to be modules and then a simple re-usable denormalization plugin. It fall backs to querying data from related model and also cache it for future use. This works like a cache fetch or calculate &amp; store strategy with remote document as origin and current document as cache store. The code looks something like:</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/models/user.rb</span>
 <span class="lineno"> 2</span> <span class="k">class</span> <span class="nc">User</span>
@@ -318,13 +318,13 @@
 <span class="lineno">15</span>   <span class="n">belongs_to</span> <span class="ss">:user</span>
 <span class="lineno">16</span> 
 <span class="lineno">17</span>   <span class="c1"># this sets up a callback to update user_name when user_id changes</span>
-<span class="lineno">18</span>   <span class="c1"># also fetch user name from user if it is not already set</span>
+<span class="lineno">18</span>   <span class="c1"># also fetch and set, user name from user if it is not already set, when accessed</span>
 <span class="lineno">19</span>   <span class="n">denormalize_from</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">fields</span><span class="p">:</span> <span class="o">[</span><span class="ss">:name</span><span class="o">]</span>
 <span class="lineno">20</span> <span class="k">end</span>
 </code></pre></div>
 
 
-<p>This looks very good, but what if we need to denormalize user name to comment as well.</p>
+<p>It has been working out very nicely, but it results in very coupled code. We define denormalization macros in the models. This makes all our models aware of what data they are denormalizing, where from and also what data they need to denormalize, where to. What if we need to denormalize user name to comment as well.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/models/comment.rb</span>
 <span class="lineno"> 2</span> <span class="k">class</span> <span class="nc">Comment</span>
@@ -357,118 +357,123 @@
 
 <p>You see the problem, right?</p>
 
-<p><strong>Solution:</strong> Instead of sprinkling denormalization macros all around, we can leave the from macros as they are. From macros are good, because of all the fallback logic, they also work on pull content from a model rather push changes to many. We can replace to macros, with publishing change events. We would simply publish a message whenever a user name changes. We can capture it in a <code>before_save</code> callback and publish in a <code>after_save</code>. By publishing in <code>after_save</code> we ensure that user is persisted at time of publishing. We can change the publisher to hook directly into model callback chain.</p>
+<p><strong>Solution:</strong> Instead of sprinkling denormalization macros all around, we can leave the from macros as is, they implement the falback logic which comes in very handy. We can replace to macros, with publishing change events. We would simply publish a message whenever a user name changes. We can capture it in a <code>before_save</code> callback and publish in a <code>after_save</code>. By publishing in <code>after_save</code> we ensure that user is persisted at time of publishing. We can change the publisher to hook directly into model callback chain.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno">  1</span> <span class="c1"># app/pub_sub/publishers/base.rb</span>
-<span class="lineno">  2</span> <span class="k">module</span> <span class="nn">Publishers</span>
-<span class="lineno">  3</span>   <span class="k">module</span> <span class="nn">Base</span>
-<span class="lineno">  4</span>     <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
-<span class="lineno">  5</span> 
-<span class="lineno">  6</span>     <span class="k">def</span> <span class="nf">pub_sub_notifications</span>
-<span class="lineno">  7</span>       <span class="vi">@pub_sub_notifications</span> <span class="o">||=</span> <span class="o">::</span><span class="no">Publishers</span><span class="o">::</span><span class="no">PubSubNotifications</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
-<span class="lineno">  8</span>     <span class="k">end</span>
-<span class="lineno">  9</span> 
-<span class="lineno"> 10</span>     <span class="k">module</span> <span class="nn">ClassMethods</span>
-<span class="lineno"> 11</span>       <span class="k">def</span> <span class="nf">attach_publisher</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">publisher_class</span><span class="p">)</span>
-<span class="lineno"> 12</span>         <span class="n">after_initialize</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
-<span class="lineno"> 13</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">attach_publisher</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">publisher_class</span><span class="p">)</span>
-<span class="lineno"> 14</span>         <span class="k">end</span>
-<span class="lineno"> 15</span> 
-<span class="lineno"> 16</span>         <span class="n">before_save</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
-<span class="lineno"> 17</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_created</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 18</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 19</span>         <span class="k">end</span>
-<span class="lineno"> 20</span> 
-<span class="lineno"> 21</span>         <span class="n">after_save</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
-<span class="lineno"> 22</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">publish_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 23</span>         <span class="k">end</span>
-<span class="lineno"> 24</span> 
-<span class="lineno"> 25</span>         <span class="n">after_destroy</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
-<span class="lineno"> 26</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_destroyed</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 27</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">publish_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 28</span>         <span class="k">end</span>
-<span class="lineno"> 29</span>       <span class="k">end</span>
-<span class="lineno"> 30</span>     <span class="k">end</span>
-<span class="lineno"> 31</span> 
-<span class="lineno"> 32</span>   <span class="k">end</span>
-<span class="lineno"> 33</span> <span class="k">end</span>
+<span class="lineno">  2</span> <span class="c1"># hook into model callback chain when a publisher is attached to a model </span>
+<span class="lineno">  3</span> <span class="c1"># capture changes before_save and publish in after_save</span>
+<span class="lineno">  4</span> <span class="c1"># start publishing created and destroyed events</span>
+<span class="lineno">  5</span> <span class="k">module</span> <span class="nn">Publishers</span>
+<span class="lineno">  6</span>   <span class="k">module</span> <span class="nn">Base</span>
+<span class="lineno">  7</span>     <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
+<span class="lineno">  8</span> 
+<span class="lineno">  9</span>     <span class="k">def</span> <span class="nf">pub_sub_notifications</span>
+<span class="lineno"> 10</span>       <span class="vi">@pub_sub_notifications</span> <span class="o">||=</span> <span class="o">::</span><span class="no">Publishers</span><span class="o">::</span><span class="no">PubSubNotifications</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+<span class="lineno"> 11</span>     <span class="k">end</span>
+<span class="lineno"> 12</span> 
+<span class="lineno"> 13</span>     <span class="k">module</span> <span class="nn">ClassMethods</span>
+<span class="lineno"> 14</span>       <span class="k">def</span> <span class="nf">attach_publisher</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">publisher_class</span><span class="p">)</span>
+<span class="lineno"> 15</span>         <span class="n">after_initialize</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
+<span class="lineno"> 16</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">attach_publisher</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">publisher_class</span><span class="p">)</span>
+<span class="lineno"> 17</span>         <span class="k">end</span>
+<span class="lineno"> 18</span> 
+<span class="lineno"> 19</span>         <span class="n">before_save</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
+<span class="lineno"> 20</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_created</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 21</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 22</span>         <span class="k">end</span>
+<span class="lineno"> 23</span> 
+<span class="lineno"> 24</span>         <span class="n">after_save</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
+<span class="lineno"> 25</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">publish_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 26</span>         <span class="k">end</span>
+<span class="lineno"> 27</span> 
+<span class="lineno"> 28</span>         <span class="n">after_destroy</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
+<span class="lineno"> 29</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_destroyed</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 30</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">publish_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 31</span>         <span class="k">end</span>
+<span class="lineno"> 32</span>       <span class="k">end</span>
+<span class="lineno"> 33</span>     <span class="k">end</span>
 <span class="lineno"> 34</span> 
-<span class="lineno"> 35</span> <span class="c1"># app/pub_sub/publishers/notifications_queue.rb</span>
-<span class="lineno"> 36</span> <span class="k">module</span> <span class="nn">Publishers</span>
-<span class="lineno"> 37</span>   <span class="k">class</span> <span class="nc">NotificationsQueue</span>
-<span class="lineno"> 38</span>     <span class="kp">attr_reader</span> <span class="ss">:publisher</span><span class="p">,</span> <span class="ss">:notifications</span>
-<span class="lineno"> 39</span> 
-<span class="lineno"> 40</span>     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">publisher_name</span><span class="p">)</span>
-<span class="lineno"> 41</span>       <span class="vi">@publisher</span> <span class="o">=</span> <span class="n">publisher_name</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">constantize</span><span class="o">.</span><span class="n">new</span>
-<span class="lineno"> 42</span>       <span class="vi">@notifications</span> <span class="o">=</span> <span class="o">[]</span>
-<span class="lineno"> 43</span>     <span class="k">end</span>
-<span class="lineno"> 44</span> 
-<span class="lineno"> 45</span>     <span class="k">def</span> <span class="nf">add_notification</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{})</span>
-<span class="lineno"> 46</span>       <span class="vi">@notifications</span> <span class="o">&lt;&lt;</span> <span class="p">{</span><span class="n">event_name</span><span class="p">:</span> <span class="n">event_name</span><span class="p">,</span> <span class="ss">payload</span><span class="p">:</span> <span class="n">payload</span><span class="p">}</span>
+<span class="lineno"> 35</span>   <span class="k">end</span>
+<span class="lineno"> 36</span> <span class="k">end</span>
+<span class="lineno"> 37</span> 
+<span class="lineno"> 38</span> <span class="c1"># app/pub_sub/publishers/notifications_queue.rb</span>
+<span class="lineno"> 39</span> <span class="c1"># capture attachment of a publisher to a model in a namespace</span>
+<span class="lineno"> 40</span> <span class="k">module</span> <span class="nn">Publishers</span>
+<span class="lineno"> 41</span>   <span class="k">class</span> <span class="nc">NotificationsQueue</span>
+<span class="lineno"> 42</span>     <span class="kp">attr_reader</span> <span class="ss">:publisher</span><span class="p">,</span> <span class="ss">:notifications</span>
+<span class="lineno"> 43</span> 
+<span class="lineno"> 44</span>     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">publisher_name</span><span class="p">)</span>
+<span class="lineno"> 45</span>       <span class="vi">@publisher</span> <span class="o">=</span> <span class="n">publisher_name</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">constantize</span><span class="o">.</span><span class="n">new</span>
+<span class="lineno"> 46</span>       <span class="vi">@notifications</span> <span class="o">=</span> <span class="o">[]</span>
 <span class="lineno"> 47</span>     <span class="k">end</span>
 <span class="lineno"> 48</span> 
-<span class="lineno"> 49</span>     <span class="k">def</span> <span class="nf">reset_notifications</span>
-<span class="lineno"> 50</span>       <span class="vi">@notifications</span> <span class="o">=</span> <span class="o">[]</span>
+<span class="lineno"> 49</span>     <span class="k">def</span> <span class="nf">add_notification</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{})</span>
+<span class="lineno"> 50</span>       <span class="vi">@notifications</span> <span class="o">&lt;&lt;</span> <span class="p">{</span><span class="n">event_name</span><span class="p">:</span> <span class="n">event_name</span><span class="p">,</span> <span class="ss">payload</span><span class="p">:</span> <span class="n">payload</span><span class="p">}</span>
 <span class="lineno"> 51</span>     <span class="k">end</span>
-<span class="lineno"> 52</span>   <span class="k">end</span>
-<span class="lineno"> 53</span> <span class="k">end</span>
-<span class="lineno"> 54</span> 
-<span class="lineno"> 55</span> <span class="c1"># app/pub_sub/publishers/pub_sub_notifications.rb</span>
-<span class="lineno"> 56</span> <span class="k">module</span> <span class="nn">Publishers</span>
-<span class="lineno"> 57</span>   <span class="k">class</span> <span class="nc">PubSubNotifications</span>
-<span class="lineno"> 58</span>     <span class="kp">include</span> <span class="o">::</span><span class="no">Publisher</span>
-<span class="lineno"> 59</span> 
-<span class="lineno"> 60</span>     <span class="kp">attr_reader</span> <span class="ss">:publishers_info</span><span class="p">,</span> <span class="ss">:model</span>
-<span class="lineno"> 61</span> 
-<span class="lineno"> 62</span>     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-<span class="lineno"> 63</span>       <span class="vi">@publishers_info</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="lineno"> 64</span>       <span class="vi">@model</span>               <span class="o">=</span> <span class="n">model</span>
-<span class="lineno"> 65</span>     <span class="k">end</span>
+<span class="lineno"> 52</span> 
+<span class="lineno"> 53</span>     <span class="k">def</span> <span class="nf">reset_notifications</span>
+<span class="lineno"> 54</span>       <span class="vi">@notifications</span> <span class="o">=</span> <span class="o">[]</span>
+<span class="lineno"> 55</span>     <span class="k">end</span>
+<span class="lineno"> 56</span>   <span class="k">end</span>
+<span class="lineno"> 57</span> <span class="k">end</span>
+<span class="lineno"> 58</span> 
+<span class="lineno"> 59</span> <span class="c1"># app/pub_sub/publishers/pub_sub_notifications.rb</span>
+<span class="lineno"> 60</span> <span class="c1"># handle different attachments of publishers to a model</span>
+<span class="lineno"> 61</span> <span class="k">module</span> <span class="nn">Publishers</span>
+<span class="lineno"> 62</span>   <span class="k">class</span> <span class="nc">PubSubNotifications</span>
+<span class="lineno"> 63</span>     <span class="kp">include</span> <span class="o">::</span><span class="no">Publisher</span>
+<span class="lineno"> 64</span> 
+<span class="lineno"> 65</span>     <span class="kp">attr_reader</span> <span class="ss">:publishers_info</span><span class="p">,</span> <span class="ss">:model</span>
 <span class="lineno"> 66</span> 
-<span class="lineno"> 67</span>     <span class="k">def</span> <span class="nf">attach_publisher</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">publisher_name</span><span class="p">)</span>
-<span class="lineno"> 68</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">]</span> <span class="o">||=</span> <span class="no">Publishers</span><span class="o">::</span><span class="no">NotificationsQueue</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">publisher_name</span><span class="p">)</span>
-<span class="lineno"> 69</span>       <span class="kp">true</span>
+<span class="lineno"> 67</span>     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="lineno"> 68</span>       <span class="vi">@publishers_info</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="lineno"> 69</span>       <span class="vi">@model</span>               <span class="o">=</span> <span class="n">model</span>
 <span class="lineno"> 70</span>     <span class="k">end</span>
 <span class="lineno"> 71</span> 
-<span class="lineno"> 72</span>     <span class="k">def</span> <span class="nf">reset_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 73</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">reset_notifications</span>
-<span class="lineno"> 74</span>     <span class="k">end</span>
-<span class="lineno"> 75</span> 
-<span class="lineno"> 76</span>     <span class="k">def</span> <span class="nf">add_notification</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{})</span>
-<span class="lineno"> 77</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">add_notification</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
-<span class="lineno"> 78</span>     <span class="k">end</span>
-<span class="lineno"> 79</span> 
-<span class="lineno"> 80</span>     <span class="k">def</span> <span class="nf">prepare_created</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 81</span>       <span class="n">add_notification</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="s1">&#39;created&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">new_record?</span>
-<span class="lineno"> 82</span>     <span class="k">end</span>
-<span class="lineno"> 83</span> 
-<span class="lineno"> 84</span>     <span class="k">def</span> <span class="nf">prepare_destroyed</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 85</span>       <span class="n">add_notification</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="s1">&#39;destroyed&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">destroyed?</span>
-<span class="lineno"> 86</span>     <span class="k">end</span>
-<span class="lineno"> 87</span> 
-<span class="lineno"> 88</span>     <span class="k">def</span> <span class="nf">prepare_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 89</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">publisher</span><span class="o">.</span><span class="n">prepare_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
-<span class="lineno"> 90</span> 
-<span class="lineno"> 91</span>       <span class="k">return</span> <span class="kp">true</span>
-<span class="lineno"> 92</span>     <span class="k">end</span>
-<span class="lineno"> 93</span> 
-<span class="lineno"> 94</span>     <span class="k">def</span> <span class="nf">publish_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
-<span class="lineno"> 95</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">notifications</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">notification</span><span class="o">|</span>
-<span class="lineno"> 96</span>         <span class="n">broadcast_event</span><span class="p">(</span>
-<span class="lineno"> 97</span>             <span class="o">[</span><span class="n">namespace</span><span class="p">,</span> <span class="n">notification</span><span class="o">[</span><span class="ss">:event_name</span><span class="o">]].</span><span class="n">compact</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
-<span class="lineno"> 98</span>             <span class="n">notification</span><span class="o">[</span><span class="ss">:payload</span><span class="o">].</span><span class="n">merge</span><span class="p">(</span><span class="ss">model</span><span class="p">:</span> <span class="n">model</span><span class="p">)</span>
-<span class="lineno"> 99</span>         <span class="p">)</span>
-<span class="lineno">100</span>       <span class="k">end</span>
-<span class="lineno">101</span> 
-<span class="lineno">102</span>       <span class="k">return</span> <span class="kp">true</span>
-<span class="lineno">103</span>     <span class="k">end</span>
-<span class="lineno">104</span> 
-<span class="lineno">105</span>   <span class="k">end</span>
-<span class="lineno">106</span> <span class="k">end</span>
+<span class="lineno"> 72</span>     <span class="k">def</span> <span class="nf">attach_publisher</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">publisher_name</span><span class="p">)</span>
+<span class="lineno"> 73</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">]</span> <span class="o">||=</span> <span class="no">Publishers</span><span class="o">::</span><span class="no">NotificationsQueue</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">publisher_name</span><span class="p">)</span>
+<span class="lineno"> 74</span>       <span class="kp">true</span>
+<span class="lineno"> 75</span>     <span class="k">end</span>
+<span class="lineno"> 76</span> 
+<span class="lineno"> 77</span>     <span class="k">def</span> <span class="nf">reset_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 78</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">reset_notifications</span>
+<span class="lineno"> 79</span>     <span class="k">end</span>
+<span class="lineno"> 80</span> 
+<span class="lineno"> 81</span>     <span class="k">def</span> <span class="nf">add_notification</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="p">{})</span>
+<span class="lineno"> 82</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">add_notification</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+<span class="lineno"> 83</span>     <span class="k">end</span>
+<span class="lineno"> 84</span> 
+<span class="lineno"> 85</span>     <span class="k">def</span> <span class="nf">prepare_created</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 86</span>       <span class="n">add_notification</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="s1">&#39;created&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">new_record?</span>
+<span class="lineno"> 87</span>     <span class="k">end</span>
+<span class="lineno"> 88</span> 
+<span class="lineno"> 89</span>     <span class="k">def</span> <span class="nf">prepare_destroyed</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 90</span>       <span class="n">add_notification</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="s1">&#39;destroyed&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">destroyed?</span>
+<span class="lineno"> 91</span>     <span class="k">end</span>
+<span class="lineno"> 92</span> 
+<span class="lineno"> 93</span>     <span class="k">def</span> <span class="nf">prepare_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno"> 94</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">publisher</span><span class="o">.</span><span class="n">prepare_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+<span class="lineno"> 95</span> 
+<span class="lineno"> 96</span>       <span class="k">return</span> <span class="kp">true</span>
+<span class="lineno"> 97</span>     <span class="k">end</span>
+<span class="lineno"> 98</span> 
+<span class="lineno"> 99</span>     <span class="k">def</span> <span class="nf">publish_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+<span class="lineno">100</span>       <span class="n">publishers_info</span><span class="o">[</span><span class="n">namespace</span><span class="o">].</span><span class="n">notifications</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">notification</span><span class="o">|</span>
+<span class="lineno">101</span>         <span class="n">broadcast_event</span><span class="p">(</span>
+<span class="lineno">102</span>             <span class="o">[</span><span class="n">namespace</span><span class="p">,</span> <span class="n">notification</span><span class="o">[</span><span class="ss">:event_name</span><span class="o">]].</span><span class="n">compact</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
+<span class="lineno">103</span>             <span class="n">notification</span><span class="o">[</span><span class="ss">:payload</span><span class="o">].</span><span class="n">merge</span><span class="p">(</span><span class="ss">model</span><span class="p">:</span> <span class="n">model</span><span class="p">)</span>
+<span class="lineno">104</span>         <span class="p">)</span>
+<span class="lineno">105</span>       <span class="k">end</span>
+<span class="lineno">106</span> 
+<span class="lineno">107</span>       <span class="k">return</span> <span class="kp">true</span>
+<span class="lineno">108</span>     <span class="k">end</span>
+<span class="lineno">109</span> 
+<span class="lineno">110</span>   <span class="k">end</span>
+<span class="lineno">111</span> <span class="k">end</span>
 </code></pre></div>
 
 
-<p>We created a module <code>Publishers::Base</code> which will be included in an <code>ActiveModel</code>. Model can now <code>attach_publisher(namespace, publisher_klass)</code> and immediately start broadcasting events <code>created</code> and <code>destroyed</code> in that namespace. The publisher in the call needs to define a method <code>prepare_notifications(namespace, model)</code>. This method will be called when ever <code>before_save</code> is triggered on the model instance. Publisher can access the <code>pub_sub_notifications</code> item which is a registry of all the publishers attached to the model and add any notifications which would be broad casted as events in the <code>after_save</code>. Each <code>attach_publisher</code> call creates a new object of notifications_queue, which creates a new instance of publisher on every callback cycle and maintains an array of notifications to be published for this publisher. We initially implemented it so that publishers were registered in an initializer like subscribers below. It created many issues with development file reloads and constant restarts of server and console. Publishers are the part where all the actions happens. Maintaining list of publishers, their namespace, notifications to be published are managed here. Subscribers are simple listeners which work on per event basis. We need our notification system to be as thread safe as usage of model instances themselves, hence the complexity.</p>
+<p>We created a module, which can be included in any active model complaint model, supporting callbacks. Model can attash publishers to itself against a namespace. Attached publisher immediately starts broadcasting created and destroyed for the model. To broadcast additional events, publisher should override the <code>prepare_notifications</code> method and make calls to <code>model.pub_sub_notifications.add_notification</code>.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/publishers/user.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Publishers</span>
@@ -490,29 +495,25 @@
 <span class="lineno">18</span> 
 <span class="lineno">19</span> <span class="k">class</span> <span class="nc">Subscribers</span><span class="o">::</span><span class="no">User</span><span class="o">::</span><span class="no">Post</span> <span class="o">&lt;</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">Base</span>
 <span class="lineno">20</span>   <span class="k">def</span> <span class="nf">name_changed</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-<span class="lineno">21</span>     <span class="c1"># TODO: delay this update :)</span>
-<span class="lineno">22</span>     <span class="no">Post</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:model</span><span class="o">].</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span><span class="n">user_name</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:changes</span><span class="o">].</span><span class="n">last</span><span class="p">)</span>
-<span class="lineno">23</span>   <span class="k">end</span>
-<span class="lineno">24</span> <span class="k">end</span>
-<span class="lineno">25</span> 
-<span class="lineno">26</span> <span class="k">class</span> <span class="nc">Subscribers</span><span class="o">::</span><span class="no">User</span><span class="o">::</span><span class="no">Comment</span> <span class="o">&lt;</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">Base</span>
-<span class="lineno">27</span>   <span class="k">def</span> <span class="nf">name_changed</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-<span class="lineno">28</span>     <span class="c1"># TODO: defenitely delay these iterations ;)</span>
-<span class="lineno">29</span>     <span class="k">def</span> <span class="nf">name_changed</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-<span class="lineno">30</span>       <span class="n">iteration_limit</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># or fetch max comment count</span>
-<span class="lineno">31</span>       <span class="n">posts</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">:comments</span><span class="o">.</span><span class="n">matches</span> <span class="o">=&gt;</span> <span class="p">{</span><span class="n">user_id</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:model</span><span class="o">].</span><span class="n">id</span><span class="p">,</span> <span class="ss">:user_name</span><span class="o">.</span><span class="n">ne</span> <span class="o">=&gt;</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:changes</span><span class="o">].</span><span class="n">last</span><span class="p">})</span>
-<span class="lineno">32</span>       <span class="k">while</span> <span class="n">iteration_limit</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">posts</span><span class="o">.</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
-<span class="lineno">33</span>         <span class="c1"># TODO: Now jokes apart, we seriously need to at least upgrade to mongoid 3</span>
-<span class="lineno">34</span>         <span class="c1"># before we plan to move on to update rails 4 and mongoid 4</span>
-<span class="lineno">35</span>         <span class="no">Post</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">posts</span><span class="o">.</span><span class="n">selector</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;$set&#39;</span> <span class="o">=&gt;</span> <span class="p">{</span><span class="s1">&#39;comments.$.user_name&#39;</span> <span class="o">=&gt;</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:changes</span><span class="o">].</span><span class="n">last</span><span class="p">}</span> <span class="p">},</span> <span class="ss">multi</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">safe</span><span class="p">:</span> <span class="kp">true</span><span class="p">)</span>
-<span class="lineno">36</span>       <span class="k">end</span>
-<span class="lineno">37</span>     <span class="k">end</span>
-<span class="lineno">38</span>   <span class="k">end</span>
-<span class="lineno">39</span> <span class="k">end</span>
-<span class="lineno">40</span> 
-<span class="lineno">41</span> <span class="c1"># config/initializers/subscribers.rb</span>
-<span class="lineno">42</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">User</span><span class="o">::</span><span class="no">Post</span><span class="o">.</span><span class="n">attach_to</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
-<span class="lineno">43</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">User</span><span class="o">::</span><span class="no">Comment</span><span class="o">.</span><span class="n">attach_to</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
+<span class="lineno">21</span>     <span class="no">Post</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:model</span><span class="o">].</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span><span class="n">user_name</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:changes</span><span class="o">].</span><span class="n">last</span><span class="p">)</span>
+<span class="lineno">22</span>   <span class="k">end</span>
+<span class="lineno">23</span> <span class="k">end</span>
+<span class="lineno">24</span> 
+<span class="lineno">25</span> <span class="k">class</span> <span class="nc">Subscribers</span><span class="o">::</span><span class="no">User</span><span class="o">::</span><span class="no">Comment</span> <span class="o">&lt;</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">Base</span>
+<span class="lineno">26</span>   <span class="k">def</span> <span class="nf">name_changed</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+<span class="lineno">27</span>     <span class="k">def</span> <span class="nf">name_changed</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+<span class="lineno">28</span>       <span class="n">iteration_limit</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># or fetch max comment count</span>
+<span class="lineno">29</span>       <span class="n">posts</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">:comments</span><span class="o">.</span><span class="n">matches</span> <span class="o">=&gt;</span> <span class="p">{</span><span class="n">user_id</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:model</span><span class="o">].</span><span class="n">id</span><span class="p">,</span> <span class="ss">:user_name</span><span class="o">.</span><span class="n">ne</span> <span class="o">=&gt;</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:changes</span><span class="o">].</span><span class="n">last</span><span class="p">})</span>
+<span class="lineno">30</span>       <span class="k">while</span> <span class="n">iteration_limit</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">posts</span><span class="o">.</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="lineno">31</span>         <span class="no">Post</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">posts</span><span class="o">.</span><span class="n">selector</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;$set&#39;</span> <span class="o">=&gt;</span> <span class="p">{</span><span class="s1">&#39;comments.$.user_name&#39;</span> <span class="o">=&gt;</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:changes</span><span class="o">].</span><span class="n">last</span><span class="p">}</span> <span class="p">},</span> <span class="ss">multi</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">safe</span><span class="p">:</span> <span class="kp">true</span><span class="p">)</span>
+<span class="lineno">32</span>       <span class="k">end</span>
+<span class="lineno">33</span>     <span class="k">end</span>
+<span class="lineno">34</span>   <span class="k">end</span>
+<span class="lineno">35</span> <span class="k">end</span>
+<span class="lineno">36</span> 
+<span class="lineno">37</span> <span class="c1"># config/initializers/subscribers.rb</span>
+<span class="lineno">38</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">User</span><span class="o">::</span><span class="no">Post</span><span class="o">.</span><span class="n">attach_to</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
+<span class="lineno">39</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">User</span><span class="o">::</span><span class="no">Comment</span><span class="o">.</span><span class="n">attach_to</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
 </code></pre></div>
 
 
@@ -529,11 +530,11 @@
 
 <p><strong>Conclusion:</strong> Adding some more ruby goodness to the mix, we have built a production grade iron to straighten out the callback spaghetti we have been cooking recently.</p>
 
-<h2>Handling of events like user milestone reached, batchmate signed up</h2>
+<h2><a name="problem-handling-special-events">Handling of events like user milestone reached, batchmate signed up</a></h2>
 
-<p><strong>Problem:</strong> There are other kind of things we need to do here at alma connect. We have mail triggers to things like user count milestone reached, batchmates signed up or updated important profile info. How do we implement such things?</p>
+<p><strong>Problem:</strong> A user signs up, this can potentially trigger a user milestone and would most probably trigger batchamted signed up notification. Where do we keep this code? In the service concerned with creation of user? In model callback? Nothing seems to fit the bill.</p>
 
-<p><strong>Solution:</strong> Luckily for us we already had a steady <code>pub_sub</code> implementation by the time we needed to do this. We created a very modular and layered architecture. and wired it together using the <code>pub_sub</code>. We could already listen to <code>user.created</code> event from our user publisher. We can create milestone and batchmate signed up event from this event and handle them appropriately.</p>
+<p><strong>Solution:</strong> Lucky for us, we already have our PUBSUB. We can listen to <code>user.created</code> event from our user publisher and trigger approriate behaviour in a subscriber. Sending welcome mail and batchmate activity is not core to the application and should not effect core if smtp is not working at the moment.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/services/registration/user_notifications_service.rb</span>
 <span class="lineno"> 2</span> <span class="k">class</span> <span class="nc">Registration</span><span class="o">::</span><span class="no">UserNotificationsService</span>
@@ -597,7 +598,7 @@
 </code></pre></div>
 
 
-<p>Till now we have created everything we need to send out welcome email and milestone notification. We can see that the jobs expose three methods and they correspond to three methods in our notification service. Notification service is the place where all the real action is going on. Actual mail delivery and applying the business logic to identify the batchmates and triggering the delivery all lives in there. These all are activities which can be delayed, so we have created two jobs, each handling delaying of welcome emails and milesonte notification. We can now write the subscribers and and wire everything up.</p>
+<p>Till now we have created everything we need to send out welcome email and milestone notification. We can see that the jobs expose three methods and they correspond to three methods in our notification service. Notification service is the place where all the real action is going on, all the business logic lives there. Notification service methods should be delayed, so we have created two jobs, each handling delaying of welcome emails and milesonte notification. We can now write the subscribers and and wire everything up.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/subscribers/registration/user.rb</span>
 <span class="lineno"> 2</span> <span class="k">class</span> <span class="nc">Subscribers</span><span class="o">::</span><span class="no">Registration</span><span class="o">::</span><span class="no">User</span> <span class="o">&lt;</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">Base</span>
@@ -621,17 +622,13 @@
 </code></pre></div>
 
 
-<p><strong>Conclusion:</strong> This wires everything up. Cool isn't it. We have built a modular and composable system. We gain a lot of flexibility and kick out a lot of coupled code. I like where all this is going.</p>
+<p><strong>Conclusion:</strong> This wires everything up. Cool isn't it. We have built a modular and composable system. We gain a lot of flexibility and get a change to phase out some bad code.</p>
 
-<h1>Cocluding thoughts</h1>
+<h1><a name="concluding-thoughts">Cocluding thoughts</a></h1>
 
-<p>A simple pattern like pub/sub can be used to write highly decoupled modules which can be upgraded/added/taken out without affecting the rest of the system too much. It helps us write more modular system, which is highly composable. Additional layers can be added in later to accommodate further complexity.</p>
+<p>A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupeled modules can be composed together in variety of ways to create a flexible, robust and scalable application. The modules can be replaced and upgraded without affecting the system as whole.</p>
 
-<p>In this article we have explored using basic pattern of pub/sub in our routine work and how it helps us write modular, decoupled and composable application. I have few things in mind: more on composability of pub/sub, going back to exploring instrumentation using pub/sub. We are also working on rethinking notification settings and strategy at AlmaConnect. Another topic of talk can be building loosely coupled and testable applications using pub/sub. There is always something going on at AlmaConnect. If you liked today's article, keep looking for the next one.</p>
-
-<h1>Request for gemification</h1>
-
-<p>I am no expert here and might be missing some important issues. I welcome constructive criticism. Also if someone finds this interesting and wants to wrap this in a gem, please get in touch with me at <code>rubish[dot]gupta[at]gmail[dot]com</code>.</p>
+<p>If you liked today's article, keep looking for the next one. If you like the implmentation and would love to help in gemifying it, please get in touch at <code>rubish[dot]gupta[at]gmail[dot]com</code> or <code>tech[dot]team[at]gmail[dot]com</code></p>
 
     </div>
 
