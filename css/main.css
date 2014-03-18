@@ -500,7 +500,6 @@ code {
 }
 
 .highlight code .lineno {
-  background: #f3fff8;
   color: #5D7094;
 }
 
@@ -579,7 +578,7 @@ code {
   body { font-size: 15px; }
   header .h-wrap { padding: 30px 20px; }
   ul.posts li .p-wrap { padding: 20px; }
-  ul.posts li .p-wrap:hover { background: #67AAF7; padding-left: 20px; }
+  ul.posts li .p-wrap:hover { background: #60c7b6; padding-left: 20px; }
   #off-canvas { padding: 0 20px; }
   #off-canvas.toggled { padding: 20px; }
   #off-canvas #bio { width: 100%; }

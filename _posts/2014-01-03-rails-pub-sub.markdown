@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "PUB/SUB in Rails; using ActiveSupport::Notifications"
+title:  "Implementing PUB/SUB in Rails; using ActiveSupport::Notifications"
 date:   2014-03-18 06:00:00
 categories: [rails, pub/sub, design pattern, decoupling]
 ---
