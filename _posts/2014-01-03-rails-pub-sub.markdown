@@ -160,7 +160,7 @@ module Publisher
 end
 {% endhighlight %}
 
-The publisher under went some changes. It can be included in a class and after setting a namespace, you are all set to publish events in that namespace. We are not sure yet who might be interested, but lets just start broascasting event `user_signed_up` in `registration` namespace.
+The publisher under went some changes. It can be included in a class and after setting a namespace, you are all set to publish events in that namespace. Lets start broascasting event `user_signed_up` in `registration` namespace.
 
 {% highlight ruby linenos %}
 # app/pub_sub/publishers/registration.rb
@@ -178,7 +178,7 @@ if user.save
 end
 {% endhighlight %}
 
-We have been broadcasting that event about user sign up, but nothing is really happening. Lets create a name spaced subscriber to do something useful when the event is captured; send out that welcome email we have been talking about.
+Publisher seems to be good, lets add some ruby goodness to subscribers too.
 
 {% highlight ruby linenos %}
 # app/pub_sub/subscribers/base.rb
@@ -209,7 +209,7 @@ module Subscribers
 end
 {% endhighlight %}
 
-We have created a base class which subscribers can extend. Base class contains the magic to map events in a namespace to methods in the subscriber. Lets subscriber the event we have been broadcasting.
+We have created a base class which subscribers can extend. Base class contains the magic to map events in a namespace to methods in the subscriber. Lets subscribe to the event we have been broadcasting and send the welcome email.
 
 {% highlight ruby linenos %}
 # app/pub_sub/subscribers/registration_mailer.rb
@@ -418,9 +418,9 @@ module Publishers
 end
 {% endhighlight %}
 
-I know this code seems confusing, we need to refoctor it to something less confusing and more natural.
+The code seems a little difficult to follow, bet lets postpone the re-factoring for later. 
 
-Let try to implement the denormalize_to for user name. Basic flow being: A publisher hooks into user and starts broadcasting created, destroyed and name_changed event. We are only interested in name change here, so we implement a subscriber syncing user name in his posts on name change and ignore the created and destroyed events. We can implement another subscriber to sync changes in comments. In future if we start denormalizing user name to someplace else, we can implement addiotnal subscriber to handle synching of changes. 
+Lets try to implement the denormalize_to for user name. Basic flow being: A publisher hooks into user and starts broadcasting created, destroyed and name_changed event. We are only interested in name change here, so we implement a subscriber syncing user name in his posts on name change and ignore the created and destroyed events. We can implement another subscriber to sync changes in comments. In future if we start denormalizing user name to someplace else, we can implement addiotnal subscriber to handle synching of changes. 
 
 {% highlight ruby linenos %}
 # app/pub_sub/publishers/user.rb
