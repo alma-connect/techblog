@@ -5,7 +5,7 @@ date:   2014-03-18 06:00:00
 categories: [rails, pub/sub, design pattern, decoupling]
 ---
 
-This artcile is about implmenting a simple publisher/subscriber model in rails using [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html) (ASN). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.
+This artcile is about implmenting a simple publisher/subscriber model in rails using [ActiveSupport::Notifications (ASN)](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html). Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.
 
 - [A little about PUB/SUB?](#about-pub-sub)
 - [Implementing basic publisher & subscriber; lets get it on](#basic-implementation)
@@ -33,7 +33,7 @@ Baisc requirements of our PUBSUB are:
   1. Publishers should be able to publish named events with payload
   2. Subscribers should be able to subscribe to events matching a name and should receive the payload object with every event
 
-Such a system is already bundled with rails: its [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html)(ASN). ASN is used through out rails internally for instrumentation. The basic implementation of ASN is such a simple yet powerful API that we can start our PUBSUB implementation on top of it.
+Such a system is already bundled with rails: its ASN. ASN is used through out rails internally for instrumentation. The basic implementation of ASN is such a simple yet powerful API that we can start our PUBSUB implementation on top of it.
 
 ## <a name="basic-publisher">Publisher</a>
 
@@ -42,6 +42,7 @@ Such a system is already bundled with rails: its [ActiveSupport::Notifications](
 module Publisher
   extend self
  
+  # delegate to ActiveSupport::Notifications.instrument
   def broadcast_event(event_name, payload={})
     if block_given?
       ActiveSupport::Notifications.instrument(event_name, payload) do
@@ -54,15 +55,19 @@ module Publisher
 end
 {% endhighlight %}
 
+This is as simple as it gets. Publisher can broadcast an event with a payload. An optional block can be passed. If a block is paased, event published will also contain information about execution time and exception if any. All additional goodness associated with blocks is provided by ASN used as underlying implementation, interesting!!).
+
 {% highlight ruby linenos %}
-# publisher example usage
-if user.save 
+if user.save
+  # publish event 'user.created', with payload {user: user}
   Publisher.broadcast_event('user.created', user: user)
 end
 
 def create_user(params)
   user = User.new(params)
   
+  # publish event 'user.created', with payload {user: user}, using block syntax 
+  # now the event will have addiotional data about duration and exceptions
   Publisher.broadcast_event('user.created', user: user) do 
     User.save!
     # do some more important stuff here
@@ -70,14 +75,13 @@ def create_user(params)
 end
 {% endhighlight %}
 
-This is as simple as it gets. Publisher can broadcast an event accepting an event name and a payload hash. It can accept an optional block and will report the time taken to execute the block and also any error during execution of block (this is all provided by ASN used as base, interesting!!).
-
 
 ## <a name="basic-subscriber">Subscriber</a>
 
 {% highlight ruby linenos %}
 # app/pub_sub/subscriber.rb
 module Subscriber
+  # delegate to ActiveSupport::Notifications.subscribe
   def self.subscribe(event_name)
     if block_given?
       ActiveSupport::Notifications.subscribe(event_name) do |*args|
@@ -89,6 +93,8 @@ module Subscriber
 end
 {% endhighlight %}
 
+Subscriber can be used to subscribe to a named event and passed block will recieve an instance of [ActiveSupport::Notifications::Event](http://api.rubyonrails.org/classes/ActiveSupport/Notifications/Event.html) as parameter.
+
 {% highlight ruby linenos %}
 # subscriber example usage
 Subscriber.subscribe('user.created') do |event|
@@ -97,7 +103,6 @@ Subscriber.subscribe('user.created') do |event|
 end
 {% endhighlight %}
 
-This is also pretty straight forward, to subscribe to an event just register with a name and the [ActiveSupport::Notifications::Event](http://api.rubyonrails.org/classes/ActiveSupport/Notifications/Event.html) object gets passed to the attached block as the parameter.
 
 # <a name="use-cases">Use cases where PUB/SUB can be helpful</a>
 
@@ -109,9 +114,9 @@ These are some problems we face in our routine work, which can be solved by PUBS
 
 ## <a name="problem-mail-delivery-coupling">Mail deliveries coupled with code</a>
 
-**Problem:** There are always some kind of notifications at work in any user centeric application. Generally it starts with `after_save` model callback and slowly moves out of there to a services layer. Lets explore, how can we handle welcome emails to newly registered user using PUBSUB.
+**Problem:** There are always some kind of notifications at work in any user centeric application. Generally it starts with `after_save` model callback and slowly moves out of there to a services layer. Lets explore, how can we handle welcome emails using PUBSUB.
 
-**Solution:** Since we are adding this pattern to our application, lets bake in the modularity in core usage.
+**Solution:** Since we are adding this pattern to our application, lets bake in the modularity in core usage, for the time being a simple string namespace should be good enough.
 
 {% highlight ruby linenos %}
 # app/pub_sub/publisher.rb
@@ -126,18 +131,20 @@ module Publisher
     self.pub_sub_namespace = nil
   end
 
+  # delegate to class method
   def broadcast_event(event_name, payload={})
     if block_given?
-      self.class.broadcast_event(event_name, payload={}) do
+      self.class.broadcast_event(event_name, payload) do
         yield
       end
     else
-      self.class.broadcast_event(event_name, payload={})
+      self.class.broadcast_event(event_name, payload)
     end
   end
 
 
   module ClassMethods
+    # delegate to ASN
     def broadcast_event(event_name, payload={})
       event_name = [pub_sub_namespace, event_name].compact.join('.')
       if block_given?
@@ -165,10 +172,13 @@ module Publishers
   end
 end
 
-Publishers::Registration.broadcast_event('user_signed_up', user: user)
+# broadcast event
+if user.save
+  Publishers::Registration.broadcast_event('user_signed_up', user: user)
+end
 {% endhighlight %}
 
-That was easy, publishers look good. Lets add some object oriented love and some ruby magic to subscribers too.
+We have been broadcasting that event about user sign up, but nothing is really happening. Lets create a name spaced subscriber to do something useful when the event is captured; send out that welcome email we have been talking about.
 
 {% highlight ruby linenos %}
 # app/pub_sub/subscribers/base.rb
@@ -181,7 +191,7 @@ module Subscribers
       @namespace = namespace
     end
 
-
+    # attach public methods of subscriber with events in the namespace
     def self.attach_to(namespace)
       log_subscriber = new(namespace)
       log_subscriber.public_methods(false).each do |event|
@@ -189,6 +199,7 @@ module Subscribers
       end
     end
 
+    # trigger methods when an even is captured
     def call(message, *args)
       method  = message.gsub("#{namespace}.", '')
       handler = self.class.new(namespace)
@@ -198,7 +209,7 @@ module Subscribers
 end
 {% endhighlight %}
 
-We creeate a base class which subscribers can extend. Subscriber can then attach its method to events in a namespace. This seems to be the building block of highly modular application.
+We have created a base class which subscribers can extend. Base class contains the magic to map events in a namespace to methods in the subscriber. Lets subscriber the event we have been broadcasting.
 
 {% highlight ruby linenos %}
 # app/pub_sub/subscribers/registration_mailer.rb
@@ -215,16 +226,16 @@ end
 Subscribers::RegistrationMailer.attach_to('registration')
 {% endhighlight %}
 
-We have been broadcasting that event about user sign up, but nothing was really happening as a result. We created a subscriber to do something useful when the event is captured; send out that welcome email we have been talking about.
+This looks good, signup process just broadcasts an event about user signup and carries on with its tasks. Modules which are not core to the application can then hook onto these events to attach extended functionality. 
 
-There is a gotcha though, building modular, losely coupeled system with message publishing has its own cons. Biggest being, the system is too loosely coupeled. If something stops working nothing goes wrong and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. **Base Line:** for me pros out weigh the cons
+Building modular, losely coupeled system with message publishing has its own cons. Biggest being, the system is too loosely coupeled. If something stops working no errors start cropping up and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. **Base Line:** for me pros out weigh the cons
 
 **Conclusion:** With little modifications, our PUBSUB now supports namespaces (read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful `ActiveSupport::Notification` already feels good enough.
 
 
 ## <a name="problem-callbacks-in-denormalized-models">Messy callback chain introduced due to denormalization</a>
 
-**Problem:** We use mongodb via mongoid and denormalize data to cut down on queries. Intially it was some callbacks and method ooverrides, which grew out to be modules and then a simple re-usable denormalization plugin. It fall backs to querying data from related model and also cache it for future use. This works like a cache fetch or calculate & store strategy with remote document as origin and current document as cache store. The code looks something like:
+**Problem:** We use mongodb via mongoid and denormalize data to cut down on queries. Intially it was some callbacks and method ooverrides, which grew out to be modules and then a simple re-usable denormalization plugin. Plugin fall backs to querying data from related model and also cache it for future use. This works like a cache fetch, calculate, store strategy with remote document as origin and current document as cache store. The code looks something like:
 
 {% highlight ruby linenos %}
 # app/models/user.rb
@@ -249,7 +260,7 @@ class Post
 end
 {% endhighlight %}
 
-It has been working out very nicely, but it results in very coupled code. We define denormalization macros in the models. This makes all our models aware of what data they are denormalizing, where from and also what data they need to denormalize, where to. What if we need to denormalize user name to comment as well.
+It has been working out very nicely, but it results in very coupled code. We define denormalization macros in the models. This makes all our models aware of what data they are denormalizing, where from and also what data they need to denormalize, where to. What if we need to denormalize user name to comment as well?
 
 {% highlight ruby linenos %}
 # app/models/comment.rb
@@ -277,41 +288,50 @@ class User
 
   # we don't define the relation here, still define the denormalization macro
   denormalize_to 'post.comments', fields: [:name]
+
+  # may be many more denormalize_to calls here if comment has a polymorphic parent
 end
 {% endhighlight %}
 
-You see the problem, right?
+You see the problem, right? User need not have knowledge about comment, but needed it there to sync changes whenever user name changes.
 
-**Solution:** Instead of sprinkling denormalization macros all around, we can leave the from macros as is, they implement the falback logic which comes in very handy. We can replace to macros, with publishing change events. We would simply publish a message whenever a user name changes. We can capture it in a `before_save` callback and publish in a `after_save`. By publishing in `after_save` we ensure that user is persisted at time of publishing. We can change the publisher to hook directly into model callback chain.
+**Solution:** Instead of sprinkling denormalization macros all around, we can leave the from macros as is, the falback logic is very handy. We can replace to macros, with publishing change events. We would simply publish a message whenever a user name changes. We would capture the change in a `before_save` callback and publish it in `after_save`. By publishing in `after_save` we ensure that user is persisted at time of publishing. We can change the publisher to hook directly into model callback chain. Lets call the change evets: notifications, because they are not wrappers around code bolocks. They are simply notifications that "something changed". Events can be desribed as: "something happened and it took this much time to do it, oh sorry! it was just attempted, we got this error and it was not completed." 
+
+Lets create a publisher module, which can be included in any active model complaint model, supporting callbacks. Model can attach a namespace to itself and assign a publisher to the namespace. Attached publisher should immediately start broadcasting important notifications like created and destroyed. To broadcast additional notifications, publisher should be able to hook in.
 
 {% highlight ruby linenos %}
 # app/pub_sub/publishers/base.rb
 # hook into model callback chain when a publisher is attached to a model 
 # capture changes before_save and publish in after_save
-# start publishing created and destroyed events
+# start publishing created and destroyed notification
 module Publishers
   module Base
     extend ActiveSupport::Concern
 
+    # inject a reader to handle notifications for model in namespaces
     def pub_sub_notifications
       @pub_sub_notifications ||= ::Publishers::PubSubNotifications.new(self)
     end
 
     module ClassMethods
       def attach_publisher(namespace, publisher_class)
+        # attach publisher to model class
         after_initialize do |model|
           model.pub_sub_notifications.attach_publisher(namespace, publisher_class)
         end
 
+        # eimt created notification and let he publisher hookin to the notifications
         before_save do |model|
           model.pub_sub_notifications.prepare_created(namespace)
           model.pub_sub_notifications.prepare_notifications(namespace)
         end
 
+        # publish notifications after save
         after_save do |model|
           model.pub_sub_notifications.publish_notifications(namespace)
         end
 
+        # emit destroy notification and publish notifications
         after_destroy do |model|
           model.pub_sub_notifications.prepare_destroyed(namespace)
           model.pub_sub_notifications.publish_notifications(namespace)
@@ -398,7 +418,9 @@ module Publishers
 end
 {% endhighlight %}
 
-We created a module, which can be included in any active model complaint model, supporting callbacks. Model can attash publishers to itself against a namespace. Attached publisher immediately starts broadcasting created and destroyed for the model. To broadcast additional events, publisher should override the `prepare_notifications` method and make calls to `model.pub_sub_notifications.add_notification`.
+I know this code seems confusing, we need to refoctor it to something less confusing and more natural.
+
+Let try to implement the denormalize_to for user name. Basic flow being: A publisher hooks into user and starts broadcasting created, destroyed and name_changed event. We are only interested in name change here, so we implement a subscriber syncing user name in his posts on name change and ignore the created and destroyed events. We can implement another subscriber to sync changes in comments. In future if we start denormalizing user name to someplace else, we can implement addiotnal subscriber to handle synching of changes. 
 
 {% highlight ruby linenos %}
 # app/pub_sub/publishers/user.rb
@@ -456,10 +478,12 @@ This is a lot more code, but this system seems robust:
 
 **Problem:** A user signs up, this can potentially trigger a user milestone and would most probably trigger batchamted signed up notification. Where do we keep this code? In the service concerned with creation of user? In model callback? Nothing seems to fit the bill.
 
-**Solution:** Lucky for us, we already have our PUBSUB. We can listen to `user.created` event from our user publisher and trigger approriate behaviour in a subscriber. Sending welcome mail and batchmate activity is not core to the application and should not effect core if smtp is not working at the moment.
+**Solution:** Lucky for us, we already have our PUBSUB. We can listen to `user.created` event from our user publisher and trigger approriate behaviour in a subscriber. Sending welcome mail and batchmate activity is not core to the application and should not effect core if smtp is not working at the moment. In case you didn't noticed I secretly switched out the milestone notification with welcome email and left it as an exercise to you. Do share your thoughts on implementation in comments below.
 
 {% highlight ruby linenos %}
 # app/services/registration/user_notifications_service.rb
+
+# handles delivery and unbundling of notification
 class Registration::UserNotificationsService
   def self.deliver_welcome_email(user)
     RegistrationMailer.welcome(user).deliver
@@ -475,8 +499,13 @@ class Registration::UserNotificationsService
     RegistrationMailer.batchmate_signed_up(user, batchmate).deliver
   end
 end
+{% endhighlight %}
 
+Notification service has the logic to handle deliveries and unbundling batchmate activity notification to correct recipients. We should probably delay these actions, we do not want to affect the users experience because we need to send him a welcome email or we need to let his batchmates know about his signup. All these things could be done in a background worker.
+
+{% highlight ruby linenos %}
 # app/jobs/welcome_email_job.rb
+# handled delaying of welcome email
 class WelcomeEmailJob
   def initialize(user)
     @user = user
@@ -492,6 +521,7 @@ class WelcomeEmailJob
 end
 
 # app/jobs/batchmate_activity_job.rb
+# handled delaying of batchmate activity notification
 class BatchmateActivityJob
   def initialize(batchmate, user=nil)
     @batchmate = @batchmate
@@ -520,7 +550,7 @@ class BatchmateActivityJob
 end
 {% endhighlight %}
 
-Till now we have created everything we need to send out welcome email and milestone notification. We can see that the jobs expose three methods and they correspond to three methods in our notification service. Notification service is the place where all the real action is going on, all the business logic lives there. Notification service methods should be delayed, so we have created two jobs, each handling delaying of welcome emails and milesonte notification. We can now write the subscribers and and wire everything up.
+We have wrapped the service methods in two jobs, one handling batchmate notification and one handling welcome email. These jobs present interface similar as the underlying notification service. Lets just implment the subscribers to wire everything up.
 
 {% highlight ruby linenos %}
 # app/pub_sub/subscribers/registration/user.rb
@@ -544,12 +574,10 @@ Subscribers::Registration::User.attach_to('user')
 Subscribers::RegistrationMailer.attach_to('registration')
 {% endhighlight %}
 
-**Conclusion:** This wires everything up. Cool isn't it. We have built a modular and composable system. We gain a lot of flexibility and get a change to phase out some bad code.
-
-
+**Conclusion:** We have built a service which can be consumed as an API in internal project. We have built two jobs wrapping the API to be delayed to backgound workers. Finally wired everything up using subscribers.
 
 # <a name="concluding-thoughts">Cocluding thoughts</a>
 
-A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupeled modules can be composed together in variety of ways to create a flexible, robust and scalable application. The modules can be replaced and upgraded without affecting the system as whole.
+A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupeled modules can be composed together in variety of ways to create a flexible, robust and scalable application. These module can be upgraded without affecting the system if they adhere to a contract of event names and payload data. It can help us build a great application composed of loosely coupled, self contained modules.
 
 If you liked today's article, keep looking for the next one. If you like the implmentation and would love to help in gemifying it, please get in touch at `rubish[dot]gupta[at]almaconnect[dot]com` or `tech[dot]team[at]almaconnect[dot]com`
