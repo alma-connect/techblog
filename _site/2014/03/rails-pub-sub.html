@@ -6,14 +6,14 @@
   <head>
       <title>Alma Connect - Connecting you to your alma mater</title>
       <meta charset="utf-8">
-      <link rel="icon" type="image/x-icon" href="/techblog/assets/img/fav.ico" />
+      <link rel="icon" type="image/x-icon" href="/assets/img/fav.ico" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
       <meta http-equiv="content-language" content="en-gb" />
       <meta name="description" content="AlmaConnect: connecting you to your alma mater | providing alumni network for your institute | Tech Blog">
       <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
       <link href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,700|Lora:400,700,400italic" rel="stylesheet" type="text/css">
-      <link rel="stylesheet" type="text/css" href="/techblog/css/main.css" />
-      <link rel="stylesheet" type="text/css" href="/techblog/css/syntax.css" />
+      <link rel="stylesheet" type="text/css" href="/css/main.css" />
+      <link rel="stylesheet" type="text/css" href="/css/syntax.css" />
       <link href="atom.xml" type="application/atom+xml" rel="alternate" title="Site ATOM Feed">
   </head>
 
@@ -33,7 +33,7 @@
 
     <div id="off-canvas">
       <div id="avatar">
-        <img src="/techblog/assets/img/logo2.png" alt="AlmaConnect" title="AlmaConnect">
+        <img src="/assets/img/logo2.png" alt="AlmaConnect" title="AlmaConnect">
       </div>
       <div id="bio">
           <h1>Hi, We'are AlmaConnect.</h1>
@@ -45,7 +45,7 @@
 
     <header>
       <div class="h-wrap">
-        <h1 class="title"><a href="/techblog" title="Back to Homepage">Alma Connect</a></h1>
+        <h1 class="title"><a href="" title="Back to Homepage">Alma Connect</a></h1>
         <a class="menu-icon" title="Open Bio"><span class="lines"></span></a>
       </div>
     </header>
@@ -62,7 +62,7 @@
     </div>
     <h1 class="page-title" itemprop="name headline">Implementing PUB/SUB in Rails; using ActiveSupport::Notifications</h1>
     <div itemprop="articleBody">
-      <p>This artcile is about implmenting a simple publisher/subscriber model in rails using <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html">ActiveSupport::Notifications (ASN)</a>. Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.</p>
+      <p>This article is about implementing a simple publisher/subscriber model in Rails using <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html">ActiveSupport::Notifications (ASN)</a>. Exploring problem areas where PUBSUB can improve modularity and reduce coupling. We would also upgrade our basic implementation to cater to common use cases.</p>
 
 <ul>
 <li><a href="#about-pub-sub">A little about PUB/SUB?</a></li>
@@ -81,7 +81,8 @@
 <li><a href="#problem-handling-special-events">Handling of events like user milestone reached, batchmate signed up</a></li>
 </ul>
 </li>
-<li><a href="#concluding-thoughts">Cocluding thoughts</a></li>
+<li><a href="#concluding-thoughts">Concluding thoughts</a></li>
+<li><a href="#update-2014-04-04">Update (04 Apr, 2014)</a></li>
 </ul>
 
 
@@ -95,7 +96,7 @@
 
 <h1><a name="basic-implementation">Implementing basic publisher &amp; subscriber; lets get it on</a></h1>
 
-<p>Baisc requirements of our PUBSUB are:</p>
+<p>Basic requirements of our PUBSUB are:</p>
 
 <ol>
 <li> Publishers should be able to publish named events with payload</li>
@@ -125,7 +126,7 @@
 </code></pre></div>
 
 
-<p>This is as simple as it gets. Publisher can broadcast an event with a payload. An optional block can be passed. If a block is paased, event published will also contain information about execution time and exception if any. All additional goodness associated with blocks is provided by ASN used as underlying implementation, interesting!!).</p>
+<p>This is as simple as it gets. Publisher can broadcast an event with a payload. An optional block can be passed. If a block is passed, event published will also contain information about execution time and exception if any. All additional goodness associated with blocks is provided by ASN used as underlying implementation, interesting!!).</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">save</span>
 <span class="lineno"> 2</span>   <span class="c1"># publish event &#39;user.created&#39;, with payload {user: user}</span>
@@ -136,7 +137,7 @@
 <span class="lineno"> 7</span>   <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 <span class="lineno"> 8</span>   
 <span class="lineno"> 9</span>   <span class="c1"># publish event &#39;user.created&#39;, with payload {user: user}, using block syntax </span>
-<span class="lineno">10</span>   <span class="c1"># now the event will have addiotional data about duration and exceptions</span>
+<span class="lineno">10</span>   <span class="c1"># now the event will have additional data about duration and exceptions</span>
 <span class="lineno">11</span>   <span class="no">Publisher</span><span class="o">.</span><span class="n">broadcast_event</span><span class="p">(</span><span class="s1">&#39;user.created&#39;</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">user</span><span class="p">)</span> <span class="k">do</span> 
 <span class="lineno">12</span>     <span class="no">User</span><span class="o">.</span><span class="n">save!</span>
 <span class="lineno">13</span>     <span class="c1"># do some more important stuff here</span>
@@ -162,7 +163,7 @@
 </code></pre></div>
 
 
-<p>Subscriber can be used to subscribe to a named event and passed block will recieve an instance of <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications/Event.html">ActiveSupport::Notifications::Event</a> as parameter.</p>
+<p>Subscriber can be used to subscribe to a named event and passed block will receive an instance of <a href="http://api.rubyonrails.org/classes/ActiveSupport/Notifications/Event.html">ActiveSupport::Notifications::Event</a> as parameter.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno">1</span> <span class="c1"># subscriber example usage</span>
 <span class="lineno">2</span> <span class="no">Subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s1">&#39;user.created&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">event</span><span class="o">|</span>
@@ -185,7 +186,7 @@
 
 <h2><a name="problem-mail-delivery-coupling">Mail deliveries coupled with code</a></h2>
 
-<p><strong>Problem:</strong> There are always some kind of notifications at work in any user centeric application. Generally it starts with <code>after_save</code> model callback and slowly moves out of there to a services layer. Lets explore, how can we handle welcome emails using PUBSUB.</p>
+<p><strong>Problem:</strong> There are always some kind of notifications at work in any user centric application. Generally it starts with <code>after_save</code> model callback and slowly moves out of there to a services layer. Lets explore, how can we handle welcome emails using PUBSUB.</p>
 
 <p><strong>Solution:</strong> Since we are adding this pattern to our application, lets bake in the modularity in core usage, for the time being a simple string namespace should be good enough.</p>
 
@@ -231,7 +232,7 @@
 </code></pre></div>
 
 
-<p>The publisher under went some changes. It can be included in a class and after setting a namespace, you are all set to publish events in that namespace. We are not sure yet who might be interested, but lets just start broascasting event <code>user_signed_up</code> in <code>registration</code> namespace.</p>
+<p>The publisher under went some changes. It can be included in a class and after setting a namespace, you are all set to publish events in that namespace. Lets start broadcasting event <code>user_signed_up</code> in <code>registration</code> namespace.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/publishers/registration.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Publishers</span>
@@ -249,7 +250,7 @@
 </code></pre></div>
 
 
-<p>We have been broadcasting that event about user sign up, but nothing is really happening. Lets create a name spaced subscriber to do something useful when the event is captured; send out that welcome email we have been talking about.</p>
+<p>Publisher seems to be good, lets add some ruby goodness to subscribers too.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/subscribers/base.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Subscribers</span>
@@ -280,7 +281,7 @@
 </code></pre></div>
 
 
-<p>We have created a base class which subscribers can extend. Base class contains the magic to map events in a namespace to methods in the subscriber. Lets subscriber the event we have been broadcasting.</p>
+<p>We have created a base class which subscribers can extend. Base class contains the magic to map events in a namespace to methods in the subscriber. Lets subscribe to the event we have been broadcasting and send the welcome email.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/subscribers/registration_mailer.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Subscribers</span>
@@ -299,13 +300,13 @@
 
 <p>This looks good, signup process just broadcasts an event about user signup and carries on with its tasks. Modules which are not core to the application can then hook onto these events to attach extended functionality.</p>
 
-<p>Building modular, losely coupeled system with message publishing has its own cons. Biggest being, the system is too loosely coupeled. If something stops working no errors start cropping up and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. <strong>Base Line:</strong> for me pros out weigh the cons</p>
+<p>Building modular, loosely coupled system with message publishing has its own cons. Biggest being, the system is too loosely coupled. If something stops working no errors start cropping up and it might take too long to identify it. However I believe that failures can happen anywhere and a system which fails with grace is more robust that one which fails completely. Its another layer which gets introduced while building scalable systems. <strong>Base Line:</strong> for me pros out weigh the cons</p>
 
 <p><strong>Conclusion:</strong> With little modifications, our PUBSUB now supports namespaces (read features, modules, sub-systems, opportunities!!). Adding a layer on top of already useful <code>ActiveSupport::Notification</code> already feels good enough.</p>
 
 <h2><a name="problem-callbacks-in-denormalized-models">Messy callback chain introduced due to denormalization</a></h2>
 
-<p><strong>Problem:</strong> We use mongodb via mongoid and denormalize data to cut down on queries. Intially it was some callbacks and method ooverrides, which grew out to be modules and then a simple re-usable denormalization plugin. Plugin fall backs to querying data from related model and also cache it for future use. This works like a cache fetch, calculate, store strategy with remote document as origin and current document as cache store. The code looks something like:</p>
+<p><strong>Problem:</strong> We use mongodb via mongoid and denormalize data to cut down on queries. Initially it was some callbacks and method overrides, which grew out to be modules and then a simple re-usable denormalization plugin. Plugin fall backs to querying data from related model and also cache it for future use. This works like a cache fetch, calculate, store strategy with remote document as origin and current document as cache store. The code looks something like:</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/models/user.rb</span>
 <span class="lineno"> 2</span> <span class="k">class</span> <span class="nc">User</span>
@@ -344,7 +345,7 @@
 <span class="lineno">10</span> <span class="k">class</span> <span class="nc">Post</span>
 <span class="lineno">11</span>   <span class="kp">include</span> <span class="no">AlmaConnect</span><span class="o">::</span><span class="no">Denormalization</span>
 <span class="lineno">12</span>   <span class="n">belongs_to</span> <span class="ss">:user</span>
-<span class="lineno">13</span>   <span class="n">embeds_many</span> <span class="ss">:commments</span>
+<span class="lineno">13</span>   <span class="n">embeds_many</span> <span class="ss">:comments</span>
 <span class="lineno">14</span>   <span class="n">denormalize_from</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">fields</span><span class="p">:</span> <span class="o">[</span><span class="ss">:name</span><span class="o">]</span>
 <span class="lineno">15</span> <span class="k">end</span>
 <span class="lineno">16</span> 
@@ -365,7 +366,7 @@
 
 <p>You see the problem, right? User need not have knowledge about comment, but needed it there to sync changes whenever user name changes.</p>
 
-<p><strong>Solution:</strong> Instead of sprinkling denormalization macros all around, we can leave the from macros as is, the falback logic is very handy. We can replace to macros, with publishing change events. We would simply publish a message whenever a user name changes. We would capture the change in a <code>before_save</code> callback and publish it in <code>after_save</code>. By publishing in <code>after_save</code> we ensure that user is persisted at time of publishing. We can change the publisher to hook directly into model callback chain. Lets call the change evets: notifications, because they are not wrappers around code bolocks. They are simply notifications that "something changed". Events can be desribed as: "something happened and it took this much time to do it, oh sorry! it was just attempted, we got this error and it was not completed."</p>
+<p><strong>Solution:</strong> Instead of sprinkling denormalization macros all around, we can leave the from macros as is, the fallback logic is very handy. We can replace to macros, with publishing change events. We would simply publish a message whenever a user name changes. We would capture the change in a <code>before_save</code> callback and publish it in <code>after_save</code>. By publishing in <code>after_save</code> we ensure that user is persisted at time of publishing. We can change the publisher to hook directly into model callback chain. Lets call the change events: notifications, because they are not wrappers around code blocks. They are simply notifications that "something changed". Events can be described as: "something happened and it took this much time to do it, oh sorry! it was just attempted, we got this error and it was not completed."</p>
 
 <p>Lets create a publisher module, which can be included in any active model complaint model, supporting callbacks. Model can attach a namespace to itself and assign a publisher to the namespace. Attached publisher should immediately start broadcasting important notifications like created and destroyed. To broadcast additional notifications, publisher should be able to hook in.</p>
 
@@ -389,7 +390,7 @@
 <span class="lineno"> 18</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">attach_publisher</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">publisher_class</span><span class="p">)</span>
 <span class="lineno"> 19</span>         <span class="k">end</span>
 <span class="lineno"> 20</span> 
-<span class="lineno"> 21</span>         <span class="c1"># eimt created notification and let he publisher hookin to the notifications</span>
+<span class="lineno"> 21</span>         <span class="c1"># emit created notification and let he publisher hook in to the notifications</span>
 <span class="lineno"> 22</span>         <span class="n">before_save</span> <span class="k">do</span> <span class="o">|</span><span class="n">model</span><span class="o">|</span>
 <span class="lineno"> 23</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_created</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
 <span class="lineno"> 24</span>           <span class="n">model</span><span class="o">.</span><span class="n">pub_sub_notifications</span><span class="o">.</span><span class="n">prepare_notifications</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
@@ -488,9 +489,9 @@
 </code></pre></div>
 
 
-<p>I know this code seems confusing, we need to refoctor it to something less confusing and more natural.</p>
+<p>The code seems a little difficult to follow, bet lets postpone the re-factoring for later.</p>
 
-<p>Let try to implement the denormalize_to for user name. Basic flow being: A publisher hooks into user and starts broadcasting created, destroyed and name_changed event. We are only interested in name change here, so we implement a subscriber syncing user name in his posts on name change and ignore the created and destroyed events. We can implement another subscriber to sync changes in comments. In future if we start denormalizing user name to someplace else, we can implement addiotnal subscriber to handle synching of changes.</p>
+<p>Lets try to implement the denormalize_to for user name. Basic flow being: A publisher hooks into user and starts broadcasting created, destroyed and name_changed event. We are only interested in name change here, so we implement a subscriber syncing user name in his posts on name change and ignore the created and destroyed events. We can implement another subscriber to sync changes in comments. In future if we start denormalizing user name to someplace else, we can implement additional subscriber to handle syncing of changes.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/publishers/user.rb</span>
 <span class="lineno"> 2</span> <span class="k">module</span> <span class="nn">Publishers</span>
@@ -549,9 +550,9 @@
 
 <h2><a name="problem-handling-special-events">Handling of events like user milestone reached, batchmate signed up</a></h2>
 
-<p><strong>Problem:</strong> A user signs up, this can potentially trigger a user milestone and would most probably trigger batchamted signed up notification. Where do we keep this code? In the service concerned with creation of user? In model callback? Nothing seems to fit the bill.</p>
+<p><strong>Problem:</strong> A user signs up, this can potentially trigger a user milestone and would most probably trigger batchmate signed up notification. Where do we keep this code? In the service concerned with creation of user? In model callback? Nothing seems to fit the bill.</p>
 
-<p><strong>Solution:</strong> Lucky for us, we already have our PUBSUB. We can listen to <code>user.created</code> event from our user publisher and trigger approriate behaviour in a subscriber. Sending welcome mail and batchmate activity is not core to the application and should not effect core if smtp is not working at the moment. In case you didn't noticed I secretly switched out the milestone notification with welcome email and left it as an exercise to you. Do share your thoughts on implementation in comments below.</p>
+<p><strong>Solution:</strong> Lucky for us, we already have our PUBSUB. We can listen to <code>user.created</code> event from our user publisher and trigger appropriate behaviour in a subscriber. Sending welcome mail and batchmate activity is not core to the application and should not effect core if SMTP is not working at the moment. In case you didn't notice I secretly switched out the milestone notification with welcome email and left it as an exercise for you. Do share your thoughts on implementation in comments below.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/services/registration/user_notifications_service.rb</span>
 <span class="lineno"> 2</span> 
@@ -623,7 +624,7 @@
 </code></pre></div>
 
 
-<p>We have wrapped the service methods in two jobs, one handling batchmate notification and one handling welcome email. These jobs present interface similar as the underlying notification service. Lets just implment the subscribers to wire everything up.</p>
+<p>We have wrapped the service methods in two jobs, one handling batchmate notification and one handling welcome email. These jobs present interface similar as the underlying notification service. Lets just implement the subscribers to wire everything up.</p>
 
 <div class="highlight"><pre><code class="ruby"><span class="lineno"> 1</span> <span class="c1"># app/pub_sub/subscribers/registration/user.rb</span>
 <span class="lineno"> 2</span> <span class="k">class</span> <span class="nc">Subscribers</span><span class="o">::</span><span class="no">Registration</span><span class="o">::</span><span class="no">User</span> <span class="o">&lt;</span> <span class="no">Subscribers</span><span class="o">::</span><span class="no">Base</span>
@@ -647,13 +648,45 @@
 </code></pre></div>
 
 
-<p><strong>Conclusion:</strong> We have built a service which can be consumed as an API in internal project. We have built two jobs wrapping the API to be delayed to backgound workers. Finally wired everything up using subscribers.</p>
+<p><strong>Conclusion:</strong> We have built a service which can be consumed as an API in internal project. We have built two jobs wrapping the API to be delayed to background workers. Finally wired everything up using subscribers.</p>
 
-<h1><a name="concluding-thoughts">Cocluding thoughts</a></h1>
+<h1><a name="concluding-thoughts">Concluding thoughts</a></h1>
 
-<p>A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupeled modules can be composed together in variety of ways to create a flexible, robust and scalable application. These module can be upgraded without affecting the system if they adhere to a contract of event names and payload data. It can help us build a great application composed of loosely coupled, self contained modules.</p>
+<p>A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupled modules can be composed together in variety of ways to create a flexible, robust and scalable application. These modules can be upgraded without affecting the system if they adhere to a contract of event names and payload data.</p>
 
-<p>If you liked today's article, keep looking for the next one. If you like the implmentation and would love to help in gemifying it, please get in touch at <code>rubish[dot]gupta[at]almaconnect[dot]com</code> or <code>tech[dot]team[at]almaconnect[dot]com</code></p>
+<p>If you liked today's article, keep looking for the next one. If you like the implementation and would love to help in gemifying it, please get in touch at <code>rubish[dot]gupta[at]almaconnect[dot]com</code> or <code>tech[dot]team[at]almaconnect[dot]com</code></p>
+
+<h1><a name="update-2014-04-04">Update (04 Apr, 2014)</a></h1>
+
+<p>I will post the queries ann feedback we have received till now. If anybody has something to add, please leave a comment or mail us. Thanks to <strong>Kathy Onu</strong> and <strong>Calinoiu Alexandru Nicolae</strong> for helping with grammar and spellings. <strong>Shaomeng Zhang</strong> I have added a comment to the question.</p>
+
+<p><strong>Query from Andrey Koleshko:</strong></p>
+
+<p>I've read you article and I really liked it. In general your approach is awesome. But as I see you provide examples with Rails callbacks.</p>
+
+<p>Ideally in tests we have to prevent the execution of callbacks everywhere except one place - this is place where we want to test only publishers' triggers. But as I know Rails doesn't provide some adequate facility to turn on/off callbacks. Any advises to solve the problem?</p>
+
+<p><strong>Reply:</strong></p>
+
+<p>Frankly speaking, our code base is very much untested and test suite is as good as no tests at all, so I would not be able suggest anything concrete in this area. We had the current implementation in place for a few weeks before the article, but it was for very specific use cases. As we realized the potential applications of PUB/SUB in rails, I got excited and wrote an article to get some feedback from the community. It is working great for us, but in no way it is the final stable structure.</p>
+
+<p>I am not sure how to enable/disable callbacks for rails. However, for publishers if you implement the publisher as a base class instead of module (similar to subscriber in <a href="#problem-mail-delivery-coupling">Mail Delivery Coupling</a>), you should be able to implement a class attribute for enabling/disabling individual or all publishers.</p>
+
+<p><strong>Query from Seif:</strong></p>
+
+<p>Thanks for sharing this awesome post. I just have one question. Does it work in the same session or on a different thread. For example, if the subscription method take 10 seconds to complete, will it affect response time?</p>
+
+<p><strong>Reply:</strong></p>
+
+<p>Yes this will work synchronously. If a subscription takes 10 secs to complete, it will affect the response time for the request. However, you can initiate a background task in subscriber instead of actually doing work. Queue for ASN can also be changed. You can look into different options(redis is first thing that comes to my mind) or implement a ASN compatible queue yourself to get the desired behavior.</p>
+
+<p><strong>Followup from Seif:</strong></p>
+
+<p>Thanks for the response. About background jobs, I’m using Sidekiq, but its kinda tedious to create a worker for every listener. Any recommended pub-sub that supports threading?</p>
+
+<p><strong>Reply:</strong></p>
+
+<p>My suggestion would be create the workers, modular code is always good in long run. If you are using sidekiq you already have redis in your tech stack. You can implement a subscriber to listen to any event which should be backgrounded and put it in a redis queue. You can have other process(redis listener) to pop events from redis and trigger them in threads. Additional subscribers can be created to handle backgrounded events and can be attached in the redis listener.</p>
 
     </div>
 
@@ -673,9 +706,13 @@
     </div>
 
     <div class="facebook-comments">
-      <div class="fb-comments" data-href="http://alma-connect.github.io/techblog/2014/03/rails-pub-sub.html" data-numposts="5" data-colorscheme="light"></div>
+      <div class="fb-comments" data-href="http://alma-connect.github.io/2014/03/rails-pub-sub.html" data-numposts="5" data-colorscheme="light"></div>
     </div>
 
+    
+      <a rel="next" href="/2014/04/alma-connect-todos.html" id="next">
+        <span class="nav-title nav-title-next">newer</span> &rarr;
+      </a>
     
     
   </article>
@@ -692,7 +729,7 @@
       </small>
     </footer>
 
-    <script src="/techblog/js/main.js"></script>
+    <script src="/js/main.js"></script>
     
     
       <script>
