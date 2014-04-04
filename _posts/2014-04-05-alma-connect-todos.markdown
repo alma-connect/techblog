@@ -5,9 +5,7 @@ date:   2014-04-05 06:00:00
 categories: [logstash, elasticsearchm, kibana, mongoid, mongodb, rails, intern, todo]
 ---
 
-I would admit that [Alma Connect](http://www.almaconnect.com) codebase is not in its best shape. The culprit is evolving project and software erosion. You can read the brilliant post by heroku on [erosion resistance](https://blog.heroku.com/archives/2011/6/28/the_new_heroku_4_erosion_resistance_explicit_contracts). Evolving project is very subjective issue. In a startup you want to build fast, release fast, tweak fast. All this urgency created due to fast is too much. Often times you intentionally let bad code slip into the codebase to save time.
-
-Today we will talk about the things which we want TODO at alma connect, but can not due to the fast pace of the world. We are looking for interns for these projects and we promise to provide a very good learning experience.
+In an evolving project it is difficult to maintain quality while evolving and changing feature set. Every once in a while its necessary to take a time out and refactor code to get it back in shape. In this article we will talk about the things which we want TODO at alma connect. We are looking for interns for these projects and promise to provide a very good learning experience.
 
 - [Setup analytics engine](#setup-analytics-engine)
 - [Grape for composable api end points in rails](#grape-api-rails)
