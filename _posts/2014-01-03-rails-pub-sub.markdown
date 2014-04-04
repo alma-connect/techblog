@@ -581,3 +581,41 @@ Subscribers::RegistrationMailer.attach_to('registration')
 A simple pattern like pub/sub can help us write highly decoupled modules. These loosely coupled modules can be composed together in variety of ways to create a flexible, robust and scalable application. These modules can be upgraded without affecting the system if they adhere to a contract of event names and payload data.
 
 If you liked today's article, keep looking for the next one. If you like the implementation and would love to help in gemifying it, please get in touch at `rubish[dot]gupta[at]almaconnect[dot]com` or `tech[dot]team[at]almaconnect[dot]com`
+
+
+
+# **Update (04 Apr, 2014):**
+
+I will post the queries ann feedback we have received till now. If anybody has something to add, please leave a comment or mail us. Thanks to **Kathy Onu** and **Calinoiu Alexandru Nicolae** for helping with grammar and spellings. **Shaomeng Zhang** I have added a comment to the question.
+
+**Query from Andrey Koleshko:**
+
+I've read you article http://alma-connect.github.io/techblog/2014/03/rails-pub-sub.html#.Uy_qDMeUlCP
+And I really liked it. In general your approach is awesome. But as I see you provide examples with Rails callbacks.
+
+Ideally in tests we have to prevent the execution of callbacks everywhere except one place - this is place where we want to test only publishers' triggers. But as I know Rails doesn't provide some adequate facility to turn on/off callbacks. Any advises to solve the problem?
+
+**Reply:**
+
+Frankly speaking, our code base is very much untested and test suite is as good as no tests at all, so I would not be able suggest anything concrete in this area. We had the current implementation in place for a few weeks before the article, but it was for very specific use cases. As we realized the potential applications of PUB/SUB in rails, I got excited and wrote an article to get some feedback from the community. It is working great for us, but in no way it is the final stable structure.
+
+I am not sure how to enable/disable callbacks for rails. However, for publishers if you implement the publisher as a base class instead of module (similar to subscriber in http://alma-connect.github.io/techblog/2014/03/rails-pub-sub.html#problem-mail-delivery-coupling), you should be able to implement a class attribute for enabling/disabling individual or all publishers.
+
+**Query from Seif:**
+
+Thanks for sharing this awesome post http://alma-connect.github.io/techblog/2014/03/rails-pub-sub.html#.UzmCe62SxkI
+
+I just have one question. Does it work in the same session or on a different thread. For example, if the subscription method take 10 seconds to complete, will it affect response time?
+
+**Reply:**
+
+Yes this will work synchronously. If a subscription takes 10 secs to complete, it will affect the response time for the request. However, you can initiate a background task in subscriber instead of actually doing work. Queue for ASN can also be changed. You can look into different options(redis is first thing that comes to my mind) or implement a ASN compatible queue yourself to get the desired behavior.
+
+**Followup from Seif:**
+
+Thanks for the response. About background jobs, I’m using Sidekiq, but its kinda tedious to create a worker for every listener. Any recommended pub-sub that supports threading?
+
+**Reply:**
+
+My suggestion would be create the workers, modular code is always good in long run. If you are using sidekiq you already have redis in your tech stack. You can implement a subscriber to listen to any event which should be backgrounded and put it in a redis queue. You can have other process(redis listener) to pop events from redis and trigger them in threads. Additional subscribers can be created to handle backgrounded events and can be attached in the redis listener.
+
