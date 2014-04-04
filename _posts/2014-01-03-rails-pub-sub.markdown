@@ -590,8 +590,7 @@ I will post the queries ann feedback we have received till now. If anybody has s
 
 **Query from Andrey Koleshko:**
 
-I've read you article http://alma-connect.github.io/techblog/2014/03/rails-pub-sub.html#.Uy_qDMeUlCP
-And I really liked it. In general your approach is awesome. But as I see you provide examples with Rails callbacks.
+I've read you article and I really liked it. In general your approach is awesome. But as I see you provide examples with Rails callbacks.
 
 Ideally in tests we have to prevent the execution of callbacks everywhere except one place - this is place where we want to test only publishers' triggers. But as I know Rails doesn't provide some adequate facility to turn on/off callbacks. Any advises to solve the problem?
 
@@ -599,13 +598,11 @@ Ideally in tests we have to prevent the execution of callbacks everywhere except
 
 Frankly speaking, our code base is very much untested and test suite is as good as no tests at all, so I would not be able suggest anything concrete in this area. We had the current implementation in place for a few weeks before the article, but it was for very specific use cases. As we realized the potential applications of PUB/SUB in rails, I got excited and wrote an article to get some feedback from the community. It is working great for us, but in no way it is the final stable structure.
 
-I am not sure how to enable/disable callbacks for rails. However, for publishers if you implement the publisher as a base class instead of module (similar to subscriber in http://alma-connect.github.io/techblog/2014/03/rails-pub-sub.html#problem-mail-delivery-coupling), you should be able to implement a class attribute for enabling/disabling individual or all publishers.
+I am not sure how to enable/disable callbacks for rails. However, for publishers if you implement the publisher as a base class instead of module (similar to subscriber in [Mail Delivery Coupling](#problem-mail-delivery-coupling)), you should be able to implement a class attribute for enabling/disabling individual or all publishers.
 
 **Query from Seif:**
 
-Thanks for sharing this awesome post http://alma-connect.github.io/techblog/2014/03/rails-pub-sub.html#.UzmCe62SxkI
-
-I just have one question. Does it work in the same session or on a different thread. For example, if the subscription method take 10 seconds to complete, will it affect response time?
+Thanks for sharing this awesome post. I just have one question. Does it work in the same session or on a different thread. For example, if the subscription method take 10 seconds to complete, will it affect response time?
 
 **Reply:**
 
