@@ -16,6 +16,7 @@ This article is about implementing a simple publisher/subscriber model in Rails 
 	- [Messy callback chain introduced due to denormalization](#problem-callbacks-in-denormalized-models)
 	- [Handling of events like user milestone reached, batchmate signed up](#problem-handling-special-events)
 - [Concluding thoughts](#concluding-thoughts)
+- [Update (04 Apr, 2014)](#update-2014-04-04)
 
 
 # <a name="about-pub-sub">A little about PUB/SUB?</a>
@@ -584,7 +585,7 @@ If you liked today's article, keep looking for the next one. If you like the imp
 
 
 
-# **Update (04 Apr, 2014):**
+# <a name="update-2014-04-04">Update (04 Apr, 2014)</a>
 
 I will post the queries ann feedback we have received till now. If anybody has something to add, please leave a comment or mail us. Thanks to **Kathy Onu** and **Calinoiu Alexandru Nicolae** for helping with grammar and spellings. **Shaomeng Zhang** I have added a comment to the question.
 
