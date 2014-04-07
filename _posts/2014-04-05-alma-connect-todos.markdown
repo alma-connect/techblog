@@ -27,7 +27,7 @@ We are looking to build a analytics engine where we can dump any information and
 
 Authentication and authorization are two very different things. A lot of things can be controlled by authorization, but not everything. When there are different types of users with different needs they should have dedicated views for them. A composable data api for these views must be inplace before building the view on top of it.
 
-We are thinking of implementing end points pertaining to each feature or module using the [grape](https://github.com/intridea/grape) gem family. We would be able to build composable robust APIs which can be mounted and multiple endpoints like: user, admin, recruiter. I really like the approach grape has taken.
+We are thinking of implementing end points pertaining to each feature or module using the [grape](https://github.com/intridea/grape) gem family. We would be able to build composable robust APIs which can be mounted at multiple endpoints like: user, admin, recruiter. I really like the approach grape has taken.
 
 # <a name="decouple-frontend">Decoupling frontend from backend</a>
 
