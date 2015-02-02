@@ -205,8 +205,3 @@ Now that we have one layout each for our guests and users, we can also saperate 
 {% endhighlight %}
 
 I hope this was useful imformation for some. If you have any tricks, please share in comments.
-
-
-
-
-
