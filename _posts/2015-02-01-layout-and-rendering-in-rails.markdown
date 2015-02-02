@@ -5,7 +5,7 @@ date:   2015-02-01 06:00:00
 categories: [rails, layouts]
 ---
 
-I came across this [question](http://stackoverflow.com/questions/28272806/can-view-not-extend-application-application-html-erb-in-ruby-on-rails) on [stackoverflow](http://stackoverflow.com). There is an excellent guide out there about [Layouts and Rendering](http://guides.rubyonrails.org/layouts_and_rendering.html) which everyone should read. I would like to tell few tricks that can be used to support common scenarios.
+I came across this [question](http://stackoverflow.com/questions/28272806/can-view-not-extend-application-application-html-erb-in-ruby-on-rails) on [stackoverflow](http://stackoverflow.com). There is an excellent guide out there about [Layouts and Rendering](http://guides.rubyonrails.org/layouts_and_rendering.html) which everyone should read. I would like to share a few tricks that can be used to support common scenarios.
 
 - [Conditional content in layout](#conditional-content)
 - [Multiple layouts](#multiple-layouts)
@@ -16,7 +16,7 @@ I came across this [question](http://stackoverflow.com/questions/28272806/can-vi
 
 Lets start with a simple `application.html`:
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/application.html.erb
 <!DOCTYPE html>
 <html>
@@ -45,7 +45,7 @@ end
 {% endhighlight %}
 
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/application.html.erb
 .....
   <%= render('layouts/header') unless headless %>
@@ -55,11 +55,11 @@ end
 We defined an attribute `headless` and also declared the getter to be helpor method, to facilitate usage in views. `headless` is set to `true` if we do not want to show header on a page.
 
 
-# <a name="multiple-layouts">Multiple Layputs</a>
+# <a name="multiple-layouts">Multiple layouts</a>
 
-But that is not enough, registration and authenticated pages have a completely different layout. We cannot just keep adding conditionals. Lets create different layouts for out guests and users. We will keep application layout for users and create a new layout guest for guests.
+But that is not enough, registration and authenticated pages have a completely different layout. We cannot just keep adding conditionals. Lets create different layouts for our guests and users. We will keep application layout for users and create a new layout for guests.
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/application.html.erb
 <!DOCTYPE html>
 <html>
@@ -79,7 +79,7 @@ But that is not enough, registration and authenticated pages have a completely d
 </html>
 {% endhighlight %}
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/guest.html.erb
 <!DOCTYPE html>
 <html>
@@ -116,7 +116,7 @@ Layout can be configured on a controller level or per action level. If set on a 
 
 Head content in both the layouts is common, why don't we extract it out in a partial. Extracting head content in a partial is trivial, but what if we want to extract out doctype and html tag as well? Worry not, partial layouts to the rescue.
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/_head.html.erb
 <!DOCTYPE html>
 <html>
@@ -131,7 +131,7 @@ Head content in both the layouts is common, why don't we extract it out in a par
 </html>
 {% endhighlight %}
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/application.html.erb
 <%= render :layout => 'layouts/head' do %>
 
@@ -147,7 +147,7 @@ Head content in both the layouts is common, why don't we extract it out in a par
 <% end # render partial layout 'head' %>
 {% endhighlight %}
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/guest.html.erb
 <%= render :layout => 'layouts/head' do %>
 
@@ -163,7 +163,7 @@ Now we don't have to worry about making changes in multiple layouts when we chan
 
 Now that we have one layout each for our guests and users, we can also saperate out our assets for the layouts. We can have template specific assets as well. `content_for` is apt for this.
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/_head.html.erb
 <!DOCTYPE html>
 <html>
@@ -182,7 +182,7 @@ Now that we have one layout each for our guests and users, we can also saperate 
 {% endhighlight %}
 
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/layouts/guest.html.erb
 <%= render :layout => 'layouts/head' do %>
   <% content_for :layout_assets do %>
@@ -195,7 +195,7 @@ Now that we have one layout each for our guests and users, we can also saperate 
 <% end # render partial layout 'head' %>
 {% endhighlight %}
 
-{% highlight ruby linenos %}
+{% highlight erb linenos %}
 # app/views/guest/login.html.erb
 <% content_for :template_assets do %>
   <!-- template specific assets -->
